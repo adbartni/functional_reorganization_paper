@@ -1,12 +1,20 @@
 ## Read in databases
 
 discon <- read.table(
-  'data/matched_discon.csv', 
+  'data/matched_absolute_discon.csv', 
   sep = ",", 
   encoding = "utf-8", 
   header = 1, 
   row.names = 1
   )
+
+dti <- read.table(
+  'data/matched_dti.csv',
+  sep = ",",
+  encoding = "utf-8",
+  header = 1,
+  row.names = 1
+)
 
 fcDev <- read.table(
   'data/abs_part_z_matched_to_discon_pairs.csv', 
