@@ -7,7 +7,7 @@
 	- Create a dashboard for absolute lesional discon
 	- Create a dashboard for dti
 	- Make it easy to go between the two (dashboard makes it easier)
- - Possibly install muti to find mutual information
+ - Possibly install muti to find mutual information, mi.plugin works for now though
 ```{r}
 if(!require("devtools")) {
 install.packages("devtools")
