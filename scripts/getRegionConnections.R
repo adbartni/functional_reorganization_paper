@@ -3,6 +3,7 @@
 
 library(tidyr)
 library(entropy)
+library(ggplot2)
 
 
 #' Selects alls columns of a specified dataframe that contain the input region
@@ -99,15 +100,7 @@ plotRegionConnections <- function(region, discon.source) {
     geom_smooth(method = "lm") + 
     facet_wrap("~pair", scales = "free") +
     labs(x = "Structural Disruption", 
-         y = "Devation in Functional Connectivity") + 
-    geom_label(aes(x = 0.90 * max(discon), 
-                   y = 0.90 * max(fc),
-                   label = rsquare), 
-               inherit.aes = F) +
-    geom_label(aes(x = 0.90 * max(discon),
-                   y = 0.80 * max(fc),
-                   label = mi),
-               inherit.aes = F)
+         y = "Devation in Functional Connectivity") 
   
 }
 

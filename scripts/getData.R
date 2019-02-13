@@ -1,6 +1,14 @@
 ## Read in databases
 
 discon <- read.table(
+  'data/matched_discon.csv', 
+  sep = ",", 
+  encoding = "utf-8", 
+  header = 1, 
+  row.names = 1
+)
+
+absolute.discon <- read.table(
   'data/matched_absolute_discon.csv', 
   sep = ",", 
   encoding = "utf-8", 

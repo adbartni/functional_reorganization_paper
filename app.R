@@ -1,7 +1,6 @@
 library(shiny)
 library(shinythemes)
 library(shinydashboard)
-library(ggplot2)
 
 source('scripts/getData.R')
 source('scripts/preprocessing.R')
