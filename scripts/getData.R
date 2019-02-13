@@ -25,7 +25,7 @@ dti <- read.table(
 )
 
 fcDev <- read.table(
-  'data/abs_part_z_matched_to_discon_pairs.csv', 
+  'data/full_cor_matched_to_discon_pairs.csv', 
   sep = ",", 
   encoding = "utf-8", 
   header = 1, 
