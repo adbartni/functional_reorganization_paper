@@ -1,5 +1,6 @@
 library(shiny)
 library(shinythemes)
+library(shinydashboard)
 library(ggplot2)
 
 source('scripts/getData.R')
@@ -7,34 +8,76 @@ source('scripts/preprocessing.R')
 source('scripts/getRegionConnections.R')
 source('scripts/getSelectedPair.R')
 
-## Define UI for application
-ui <- fluidPage(
-		theme = shinytheme("flatly"),
-   
-   ## Application title
-   titlePanel("Testing"),
-     
-     ## Show scatter plot
-     mainPanel(
-       
-       ## Lists to select regions to pair up
-       selectInput(inputId = "region1",
-                   label = strong("Region 1"),
-                   choices = regions),
-       
-       plotOutput("distPlot")
-     )
+sidebar <- dashboardSidebar(
+  
+  sidebarMenu(
+    menuItem("Absolute Lesional Discon",
+             tabName = "discon"),
+    menuItem("DTI",
+             tabName = "dti")
+  )
+)
+
+
+ui <- dashboardPage(
+  skin = "black",
+  
+  dashboardHeader(title = 
+                    "Scatters"),
+  sidebar = sidebar,
+  
+  dashboardBody(
+    
+    tabItems(
+      tabItem(tabName = "discon",
+              fluidPage(
+                
+                box(
+                  title = "Select which region you would like to examine",
+                  selectInput(inputId = "region.discon",
+                              label = strong("Region"),
+                              choices = regions)
+                ),
+                
+                plotOutput("disconPlot")
+              )
+        ),
+      
+      tabItem(tabName = "dti",
+              fluidPage(
+                
+                box(
+                  title = "Select which region you would like to examine",
+                  selectInput(inputId = "region.dti",
+                              label = strong("Region"),
+                              choices = regions)
+                ),
+                
+                plotOutput("dtiPlot")
+              )
+      )
+    )
+  )
+  
 )
 
 ## Define server logic required to draw a scatterplot
 server <- function(input, output) {
   
-   output$distPlot <- renderPlot({
+   output$disconPlot <- renderPlot({
      
-     region <- input$region1
+     region.discon <- input$region.discon
+     plotRegionConnections(region.discon, discon)
 
-     plotRegionConnections(region)
-
+   },
+   height = 720, 
+   width = 1300)
+   
+   output$dtiPlot <- renderPlot({
+     
+     region.dti <- input$region.dti
+     plotRegionConnections(region.dti, dti)
+     
    },
    height = 720, 
    width = 1300)

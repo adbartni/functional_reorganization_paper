@@ -34,4 +34,4 @@ dti <- dti[,sd.pairs]
 remove <- c("55107", "55831", "71751")
 discon <- discon[!rownames(discon) %in% remove, ]
 fcDev <- fcDev[!rownames(fcDev) %in% remove, ]
-dti <- dti[,sd.pairs]
+dti <- dti[!rownames(dti) %in% remove, ]

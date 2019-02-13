@@ -1,4 +1,5 @@
 ## Select columns by region, gather/spread, graph scatter of discon vs. fcDev
+## As well as adding a column for R sqaured and Mutual Information
 library(tidyr)
 library(entropy)
 
@@ -22,27 +23,35 @@ getRegion <- function(region, inputData, rowname = 'subject', inputName) {
   return (outData)
 }
 
-plotRegionConnections <- function(region) {
+
+addRsq_MI_cols <- function(data) {
   
-  region.discon <- getRegion(region, discon, inputName = "discon")
+  data <- data %>%
+    group_by(pair) %>%
+    arrange(pair) %>%
+    mutate(rsquare = paste("R2 = ",
+                           summary(lm(fc ~ discon))$r.squared)
+    ) %>%
+    mutate(mi = paste("MI = ", mi.plugin(
+      rbind(
+        as.factor(discon), as.factor(fc)))
+      )
+    )
+  return (data)
+}
+
+
+plotRegionConnections <- function(region, discon.source) {
+  
+  fcDev <- fcDev[rownames(discon.source),]
+  
+  region.discon <- getRegion(region, discon.source, inputName = "discon")
   region.fc <- getRegion(region, fcDev, inputName = "fcDev")
   
   region.data <- rbind(region.discon, region.fc)
   data <- spread(region.data, "conType", "value")
   
-  data <- data %>%
-    group_by(pair) %>%
-    arrange(pair) %>%
-    mutate({
-      model <- lm(fc ~ discon);
-      rsquare = summary(model)$r.squared
-    }) %>%
-    mutate({
-      joint <- rbind(
-        as.factor(discon), as.factor(fc));
-      mi = paste("MI", mi.plugin(joint))
-    })
-  print(data$rsquare)
+  data <- addRsq_MI_cols(data)
 
   ggplot(data,
          aes(x = discon,
@@ -51,7 +60,15 @@ plotRegionConnections <- function(region) {
     geom_smooth(method = "lm") + 
     facet_wrap("~pair") +
     labs(x = "Structural Disruption", 
-         y = "Devation in Functional Connectivity")
+         y = "Devation in Functional Connectivity") + 
+    geom_label(aes(x = 0.90 * max(discon), 
+                   y = 0.90 * max(fc),
+                   label = rsquare), 
+               inherit.aes = F) +
+    geom_label(aes(x = 0.90 * max(discon),
+                   y = 0.80 * max(fc),
+                   label = mi),
+               inherit.aes = F)
   
 }
 
