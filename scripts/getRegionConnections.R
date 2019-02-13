@@ -1,8 +1,24 @@
 ## Select columns by region, gather/spread, graph scatter of discon vs. fcDev
 ## As well as adding a column for R sqaured and Mutual Information
+
 library(tidyr)
 library(entropy)
 
+
+#' Selects alls columns of a specified dataframe that contain the input region
+#' as a string in the column name, then gathers the columns according to
+#' the source of the input data
+#' 
+#' @param region The name of the brain region to want to select all columns of connections
+#' for as a string
+#' @param inputData The dataframe that you are selecting the columns from
+#' @param rowname "subject" by default. What the row names will be in the new dataframe
+#' @param inputName What the column names will be in the newly created dataframe
+#' @return A dataframe with four (4) columns:
+#'  - subject/ID
+#'  - pair/connection
+#'  - value of connection/disconnection
+#'  - conType - either disconnectivity or change in funtional connectivity
 getRegion <- function(region, inputData, rowname = 'subject', inputName) {
   
   selectedRegion <- subset(inputData, select = grep(region, names(inputData)))
@@ -24,6 +40,15 @@ getRegion <- function(region, inputData, rowname = 'subject', inputName) {
 }
 
 
+
+#' Calculates the R squared and Mutual Information of a joint distribution
+#' and adds each as a column to the input dataframe
+#' 
+#' @param data The dataframe containing columns for each of the discon score
+#' and functional connectivity change
+#' @return The input dataframe with two columns containing the R squared and mutual
+#' information for the joint distribution of disconnectivity and functional connectivity
+#' for each pair in the dataframe
 addRsq_MI_cols <- function(data) {
   
   data <- data %>%
@@ -41,6 +66,20 @@ addRsq_MI_cols <- function(data) {
 }
 
 
+
+#' Uses ggplot to plot a scatter of every connection to a given region.
+#' Also annotates each scatter with the R squared and mutual information
+#' of the joint distribution of each connection disconnectivity and
+#' deviation in functional connectivity.
+#' 
+#' 
+#' @param region The region for which to view the scatter of every
+#' connection to that region's structural disconnection vs.
+#' deviation in functional connectivity.
+#' @param discon.source Either dti or discon. Which disconnectivity
+#' measure to plot against change in functional connectivity.
+#' @return none, plots a facet_wrap of scatters for every connection
+#' to a particular region
 plotRegionConnections <- function(region, discon.source) {
   
   fcDev <- fcDev[rownames(discon.source),]
@@ -58,7 +97,7 @@ plotRegionConnections <- function(region, discon.source) {
              y = fc)) +
     geom_point() +
     geom_smooth(method = "lm") + 
-    facet_wrap("~pair") +
+    facet_wrap("~pair", scales = "free") +
     labs(x = "Structural Disruption", 
          y = "Devation in Functional Connectivity") + 
     geom_label(aes(x = 0.90 * max(discon), 

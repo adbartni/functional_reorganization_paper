@@ -11,9 +11,9 @@ source('scripts/getSelectedPair.R')
 sidebar <- dashboardSidebar(
   
   sidebarMenu(
-    menuItem("Absolute Lesional Discon",
+    menuItem("Absolute Lesional ChaCo",
              tabName = "discon"),
-    menuItem("DTI",
+    menuItem("Diffusion FA",
              tabName = "dti")
   )
 )
