@@ -34,8 +34,8 @@ fcDev <- fcDev[,sd.pairs]
 dti <- dti[,sd.pairs]
 
 ## Remove outliers 
-remove <- c("55107", "55831", "71751")
-discon <- discon[!rownames(discon) %in% remove, ]
-absolute.discon <- absolute.discon[!rownames(discon) %in% remove, ]
-fcDev <- fcDev[!rownames(fcDev) %in% remove, ]
-dti <- dti[!rownames(dti) %in% remove, ]
+# remove <- c("55107", "55831", "71751")
+# discon <- discon[!rownames(discon) %in% remove, ]
+# absolute.discon <- absolute.discon[!rownames(discon) %in% remove, ]
+# fcDev <- fcDev[!rownames(fcDev) %in% remove, ]
+# dti <- dti[!rownames(dti) %in% remove, ]

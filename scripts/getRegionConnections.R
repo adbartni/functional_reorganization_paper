@@ -83,7 +83,10 @@ addRsq_MI_cols <- function(data) {
 #' to a particular region
 plotRegionConnections <- function(region, discon.source) {
   
-  fcDev <- fcDev[rownames(discon.source),]
+  subjects <- intersect(rownames(fcDev),
+                        rownames(discon.source))
+  fcDev <- fcDev[subjects,]
+  discon.source <- discon.source[subjects,]
   
   region.discon <- getRegion(region, discon.source, inputName = "discon")
   region.fc <- getRegion(region, fcDev, inputName = "fcDev")
@@ -100,7 +103,19 @@ plotRegionConnections <- function(region, discon.source) {
     geom_smooth(method = "lm") + 
     facet_wrap("~pair", scales = "free") +
     labs(x = "Structural Disruption", 
-         y = "Devation in Functional Connectivity") 
+         y = "Devation in Functional Connectivity") + 
+    geom_label(aes(x = -Inf,
+                   y = Inf,
+                   label = rsquare),
+               inherit.aes = F,
+               hjust = "inward",
+               vjust = "inward") + 
+    geom_label(aes(x = Inf,
+                   y = Inf,
+                   label = mi),
+               inherit.aes = F,
+               hjust = "inward",
+               vjust = "inward")
   
 }
 
