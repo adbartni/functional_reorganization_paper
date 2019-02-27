@@ -1,0 +1,51 @@
+---
+title: "Structural Disconnection Histograms"
+output: html_notebook
+---
+
+Assumes data and dependencies have already been loaded.
+
+```{r Raw data, no transform}
+
+ggplot(data = dti) + geom_histogram(aes(x = Left_Thalamus_Proper_lh_isthmuscingulate),
+                                    binwidth = 0.01,
+                                    na.rm = T)
+
+```
+
+```{r Cube root transform}
+
+ggplot(data = dti) + geom_histogram(aes(x = Left_Thalamus_Proper_lh_isthmuscingulate ** (1/3)),
+                                    binwidth = 0.015,
+                                    na.rm = T)
+
+```
+
+```{r Box-Cox Transform}
+
+library(EnvStats)
+
+bc.transform <- boxcox(dti$Left_Thalamus_Proper_lh_isthmuscingulate,
+       lambda = c(-1, 1),
+       optimize = T)
+lambda <- bc.transform$lambda
+
+ggplot(data = dti) + geom_histogram(aes(x = Left_Thalamus_Proper_lh_isthmuscingulate ** (lambda)),
+                                    binwidth = 0.015,
+                                    na.rm = T)
+
+```
+
+```{r Box-Cox Transform on functional deviation data}
+
+bc.transform <- boxcox(fcDev$Left_Thalamus_Proper_lh_isthmuscingulate,
+       lambda = c(-1, 1),
+       optimize = T)
+lambda <- bc.transform$lambda
+
+ggplot(data = fcDev) + geom_histogram(aes(x = Left_Thalamus_Proper_lh_isthmuscingulate ** (lambda)),
+                                    binwidth = 0.08,
+                                    na.rm = T)
+
+```
+

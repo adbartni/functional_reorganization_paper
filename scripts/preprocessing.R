@@ -10,6 +10,7 @@ regions <- regions %>%
   str_replace_all("=", "")
 
 ## Select only the interested pairs found using NeMo HCs
+## Fix where isolated pairs come from
 discon <- discon[,isolated.pairs]
 absolute.discon <- absolute.discon[,isolated.pairs]
 fcDev <- fcDev[,isolated.pairs]
@@ -33,9 +34,10 @@ absolute.discon <- absolute.discon[,sd.pairs]
 fcDev <- fcDev[,sd.pairs]
 dti <- dti[,sd.pairs]
 
+
 ## Remove outliers 
-# remove <- c("55107", "55831", "71751")
-# discon <- discon[!rownames(discon) %in% remove, ]
-# absolute.discon <- absolute.discon[!rownames(discon) %in% remove, ]
-# fcDev <- fcDev[!rownames(fcDev) %in% remove, ]
-# dti <- dti[!rownames(dti) %in% remove, ]
+remove <- c("55107", "55831", "71751")
+discon <- discon[!rownames(discon) %in% remove, ]
+absolute.discon <- absolute.discon[!rownames(discon) %in% remove, ]
+fcDev <- fcDev[!rownames(fcDev) %in% remove, ]
+dti <- dti[!rownames(dti) %in% remove, ]
