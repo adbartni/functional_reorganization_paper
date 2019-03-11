@@ -5,6 +5,8 @@ library(tidyr)
 library(entropy)
 library(ggplot2)
 
+source('scripts/boxCoxTransform.R')
+
 
 #' Selects alls columns of a specified dataframe that contain the input region
 #' as a string in the column name, then gathers the columns according to
@@ -89,7 +91,9 @@ plotRegionConnections <- function(region, discon.source) {
   discon.source <- discon.source[subjects,]
   
   region.discon <- getRegion(region, discon.source, inputName = "discon")
+  # region.discon <- bcTransPower(region.discon)
   region.fc <- getRegion(region, fcDev, inputName = "fcDev")
+  # region.fc <- bcTransPower(region.fc)
   
   region.data <- rbind(region.discon, region.fc)
   data <- spread(region.data, "conType", "value")

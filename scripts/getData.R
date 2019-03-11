@@ -42,7 +42,8 @@ HC <- read.table(
 
 ## Get names of pairwise connections
 pairs <- colnames(discon)
-isolated.pairs <- c(readLines('data/IsolatedPairs.csv'))
+# isolated.pairs <- c(readLines('data/IsolatedPairs.csv'))
+isolated.pairs <- c(readLines('data/SignificantlyDisruptedPairs.csv'))
 
 ## Get names of regions from atlas
 regions <- c(readLines('data/atlas_labels.txt'))
