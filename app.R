@@ -10,7 +10,7 @@ source('scripts/getSelectedPair.R')
 sidebar <- dashboardSidebar(
   
   sidebarMenu(
-    menuItem("Absolute Lesional ChaCo",
+    menuItem("Proportional Lesional ChaCo",
              tabName = "discon"),
     menuItem("Diffusion FA",
              tabName = "dti")
@@ -59,6 +59,7 @@ ui <- dashboardPage(
   )
   
 )
+
 
 ## Define server logic required to draw a scatterplot
 server <- function(input, output) {

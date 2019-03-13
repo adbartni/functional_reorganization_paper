@@ -7,6 +7,7 @@ discon <- read.table(
   header = 1, 
   row.names = 1
 )
+discon.cols <- colnames(discon)
 
 absolute.discon <- read.table(
   'data/matched_absolute_discon.csv', 
@@ -31,6 +32,7 @@ fcDev <- read.table(
   header = 1, 
   row.names = 1
 )
+fmri.cols <- colnames(fcDev)
 
 HC <- read.table(
   'data/control_part_cor.csv',
@@ -47,3 +49,9 @@ isolated.pairs <- c(readLines('data/SignificantlyDisruptedPairs.csv'))
 
 ## Get names of regions from atlas
 regions <- c(readLines('data/atlas_labels.txt'))
+
+## For verification
+######################################################
+# fcDev <- head(fcDev, 10)
+# discon <- head(discon, 10)
+######################################################

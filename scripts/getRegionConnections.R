@@ -97,7 +97,7 @@ plotRegionConnections <- function(region, discon.source) {
   
   region.data <- rbind(region.discon, region.fc)
   data <- spread(region.data, "conType", "value")
-  
+
   data <- addRsq_MI_cols(data)
 
   ggplot(data,
