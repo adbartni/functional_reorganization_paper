@@ -91,29 +91,31 @@ plotRegionConnections <- function(region, discon.source) {
   discon.source <- discon.source[subjects,]
   
   region.discon <- getRegion(region, discon.source, inputName = "discon")
-  # region.discon <- bcTransPower(region.discon)
+  region.discon <- bcTransform(region.discon)
   region.fc <- getRegion(region, fcDev, inputName = "fcDev")
-  # region.fc <- bcTransPower(region.fc)
-  
+  region.fc <- bcTransform(region.fc)
+  region.discon <- subset(region.discon, select = -c(value))
+  region.fc <- subset(region.fc, select = -c(value))
+
   region.data <- rbind(region.discon, region.fc)
-  data <- spread(region.data, "conType", "value")
+  data <- spread(region.data, "conType", "trans")
 
   data <- addRsq_MI_cols(data)
 
-  ggplot(data,
+  ggplot(data %>% drop_na(),
          aes(x = discon,
              y = fc)) +
     geom_point() +
     geom_smooth(method = "lm") + 
     facet_wrap("~pair", scales = "free") +
     labs(x = "Structural Disruption", 
-         y = "Devation in Functional Connectivity") + 
+         y = "Devation in Functional Connectivity") +
     geom_label(aes(x = -Inf,
                    y = Inf,
                    label = rsquare),
                inherit.aes = F,
                hjust = "inward",
-               vjust = "inward") + 
+               vjust = "inward") +
     geom_label(aes(x = Inf,
                    y = Inf,
                    label = mi),
