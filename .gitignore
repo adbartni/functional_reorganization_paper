@@ -2,4 +2,4 @@
 .Rhistory
 .Rproj.user
 install_muti.R
-data/*
+#data/*
