@@ -64,7 +64,13 @@ addRsq_MI_cols <- function(data) {
       rbind(
         as.factor(discon), as.factor(fc)))
       )
-    )
+    ) %>%
+    mutate(pval = paste("P = ", str_split(
+      summary(lm(fc ~ discon))[4],
+      " ",
+      simplify = T
+      )[8]
+    ))
   return (data)
 }
 
@@ -119,6 +125,12 @@ plotRegionConnections <- function(region, discon.source) {
     geom_label(aes(x = Inf,
                    y = Inf,
                    label = mi),
+               inherit.aes = F,
+               hjust = "inward",
+               vjust = "inward") +
+    geom_label(aes(x = Inf,
+                   y = -Inf,
+                   label = pval),
                inherit.aes = F,
                hjust = "inward",
                vjust = "inward")

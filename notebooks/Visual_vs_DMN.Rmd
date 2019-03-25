@@ -51,16 +51,22 @@ dmn.discon <- isolateNetworkPairs(dmn, discon)
 
 ```
 
-```{r}
+```{r Visual: Plot sum of structural disconnection vs sum of functional deviation}
 
 subjects <- intersect(rownames(visual.fcDev),
                       rownames(visual.discon))
 
-rsq <- summary(
-  lm(
-    as.numeric(rowSums(visual.discon[subjects,])) ~ rowSums(visual.fcDev[subjects,])
-  )
-)$adj
+model <- lm(
+        as.numeric(rowSums(visual.discon[subjects,])) ~ rowSums(visual.fcDev[subjects,])
+      )
+
+rsq <- summary(model)$adj
+
+pval <- str_split(
+      summary(model)[4],
+      " ",
+      simplify = T
+)[8]
 
 ggplot() + 
   geom_point(
@@ -68,16 +74,27 @@ ggplot() +
         y = rowSums(visual.fcDev[subjects,]))
   ) + 
   geom_smooth(method = "lm") + 
+  labs(
+    title = "Visual Network",
+    x = "Sum of Structural Disconnection within Network",
+    y = "Total Change in Functional Connectivity within Network"
+  ) + 
   geom_label(aes(x = Inf,
                    y = Inf,
-                   label = rsq),
+                   label = paste("R2 = ", rsq)),
                inherit.aes = F,
                hjust = "inward",
-               vjust = "inward")
+               vjust = "inward") + 
+  geom_label(aes(x = Inf,
+                 y= -Inf,
+                 label = paste("P = ", pval)),
+             inherit.aes = F,
+             hjust = "inward",
+             vjust = "inward")
 
 ```
 
-```{r}
+```{r DMN: Plot sum of structural disconnection vs sum of functional deviation}
 
 rsq <- summary(
   lm(
@@ -85,18 +102,37 @@ rsq <- summary(
   )
 )$adj
 
+pval <- str_split(
+      summary(lm(
+        as.numeric(rowSums(dmn.discon[subjects,])) ~ rowSums(dmn.fcDev[subjects,])
+      ))[4],
+      " ",
+      simplify = T
+)[8]
+
 ggplot() + 
   geom_point(
     aes(x = rowSums(dmn.discon[subjects,]),
         y = rowSums(dmn.fcDev[subjects,]))
   ) + 
   geom_smooth(method = "lm") + 
+  labs(
+    title = "Default Mode Network",
+    x = "Sum of Structural Disconnection within Network",
+    y = "Total Change in Functional Connectivity within Network"
+  ) +
   geom_label(aes(x = Inf,
                    y = Inf,
-                   label = rsq),
+                   label = paste("R2 = ", rsq)),
                inherit.aes = F,
                hjust = "inward",
-               vjust = "inward")
+               vjust = "inward") + 
+  geom_label(aes(x = Inf,
+                 y= -Inf,
+                 label = paste("P = ", pval)),
+             inherit.aes = F,
+             hjust = "inward",
+             vjust = "inward")
 
 ```
 
