@@ -1,0 +1,51 @@
+---
+title: "Fact Checking for Mike"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+
+
+```{r Load dependencies, if not already loaded}
+
+dependencies <- c(
+  "dplyr",
+  "tidyr",
+  "EnvStats",
+  "ggplot2"
+)
+
+for (package in dependencies) {
+  if (!package %in% (.packages())) {
+    library(package)
+  }
+}
+
+```
+
+```{r Check Mean Devation in Functional Connectivity per Pair}
+
+withMean <- fcDev %>%
+  gather(key = "subjectID") %>%
+  group_by(subjectID) %>%
+  summarize(mean = mean(value))
+
+withStdDev <- fcDev %>%
+  gather(key = "subjectID") %>%
+  group_by(subjectID) %>%
+  summarize(dev = sd(value))
+
+mean.dev.per.pair <- merge(withMean, withStdDev) %>% arrange(desc(mean))
+print(head(mean.dev.per.pair, 10))
+print(". . . ")
+print(tail(mean.dev.per.pair, 10))
+cat('\n')
+print("Mean Devation for All Pairs")
+print(mean(mean.dev.per.pair$mean))
+View(mean.dev.per.pair)
+
+```
+
+
