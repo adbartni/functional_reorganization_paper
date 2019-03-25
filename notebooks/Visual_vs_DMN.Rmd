@@ -1,0 +1,53 @@
+---
+title: "Comparing Susceptibility and Resiliency of Functional Connectivity Between Visual and Default Mode Resting State Networks"
+output: html_notebook
+---
+
+
+
+```{r Read in regions}
+
+visual <- read.table('../data/SmithVisualNetwork.txt',
+                     col.names = "regions",
+                     header = F,
+                     encoding = "utf-8")
+dmn <- read.table('../data/SmithDMN.txt',
+                  col.names = "regions",
+                  header = F,
+                  encoding = "utf-8")
+
+
+```
+
+```{r Create dataframe of only the columns in a specific network}
+
+isolateNetworkPairs <- function(network, inputData) {
+  
+  networkData <- data.frame(row.names = rownames(inputData))
+  
+  for (region in network$regions) {
+    networkData <- cbind(
+      inputData[, grep(region, names(inputData))],
+      networkData
+    )
+  }
+  
+  return (networkData)
+  
+}
+
+```
+
+```{r Functional networks}
+
+visual.fcDev <- isolateNetworkPairs(visual, fcDev)
+dmn.fcDev <- isolateNetworkPairs(dmn, fcDev)
+
+```
+``` {r Structural networks}
+
+visual.discon <- isolateNetworkPairs(visual, discon)
+dmn.discon <- isolateNetworkPairs(dmn, discon)
+
+```
+
