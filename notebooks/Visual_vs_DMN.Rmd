@@ -51,3 +51,52 @@ dmn.discon <- isolateNetworkPairs(dmn, discon)
 
 ```
 
+```{r}
+
+subjects <- intersect(rownames(visual.fcDev),
+                      rownames(visual.discon))
+
+rsq <- summary(
+  lm(
+    as.numeric(rowSums(visual.discon[subjects,])) ~ rowSums(visual.fcDev[subjects,])
+  )
+)$adj
+
+ggplot() + 
+  geom_point(
+    aes(x = rowSums(visual.discon[subjects,]),
+        y = rowSums(visual.fcDev[subjects,]))
+  ) + 
+  geom_smooth(method = "lm") + 
+  geom_label(aes(x = Inf,
+                   y = Inf,
+                   label = rsq),
+               inherit.aes = F,
+               hjust = "inward",
+               vjust = "inward")
+
+```
+
+```{r}
+
+rsq <- summary(
+  lm(
+    as.numeric(rowSums(dmn.discon[subjects,])) ~ rowSums(dmn.fcDev[subjects,])
+  )
+)$adj
+
+ggplot() + 
+  geom_point(
+    aes(x = rowSums(dmn.discon[subjects,]),
+        y = rowSums(dmn.fcDev[subjects,]))
+  ) + 
+  geom_smooth(method = "lm") + 
+  geom_label(aes(x = Inf,
+                   y = Inf,
+                   label = rsq),
+               inherit.aes = F,
+               hjust = "inward",
+               vjust = "inward")
+
+```
+
