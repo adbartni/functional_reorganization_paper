@@ -1,30 +1,34 @@
 ---
 title: "Fact Checking for Mike"
-output:
-  pdf_document: default
-  html_document:
-    df_print: paged
+output: html_notebook
 ---
 
-
-
+### Load dependencies, if not already loaded 
 ```{r Load dependencies, if not already loaded}
+
+setwd('../')
 
 dependencies <- c(
   "dplyr",
   "tidyr",
-  "EnvStats",
+  # "EnvStats",
   "ggplot2"
 )
 
 for (package in dependencies) {
   if (!package %in% (.packages())) {
-    library(package)
+    library(package,
+            character.only = T)
   }
 }
 
-```
+if (!exists("fcDev")) {
+  source('scripts/getData.R')
+  source('scripts/preprocessing.R')
+}
 
+```
+### Check Mean Devation in Functional Connectivity per Pair
 ```{r Check Mean Devation in Functional Connectivity per Pair}
 
 withMean <- fcDev %>%
@@ -39,13 +43,147 @@ withStdDev <- fcDev %>%
 
 mean.dev.per.pair <- merge(withMean, withStdDev) %>% arrange(desc(mean))
 print(head(mean.dev.per.pair, 10))
-print(". . . ")
+cat("... ")
 print(tail(mean.dev.per.pair, 10))
 cat('\n')
-print("Mean Devation for All Pairs")
+print("Mean Deviation for All Pairs")
 print(mean(mean.dev.per.pair$mean))
 View(mean.dev.per.pair)
 
 ```
+### Correlations with CEG Variables
+```{r Load in CEG database}
+
+ceg <- read.csv(
+  '../data/CEG_database_w1000F_zscores.csv',
+  sep = ",", 
+  encoding = "utf-8", 
+  header = 1
+)
+
+rownames(ceg) <- ceg$Subject.ID
+ceg <- subset(ceg, 
+              select = c(
+                "Subject.ID",
+                "Age_at_Followup.1_copy",
+                "Sex.1",
+                "T2_LV.1",
+                "sx_2.6_norGMV.1",
+                "sdo.1"
+              )
+        ) 
+
+```
+
+```{r Average each subject's entire deviation in functional connectivity over all pairs}
+
+avg.fcDev <- data.frame(
+  Subject.ID = rownames(fcDev),
+  mean.dev = apply(
+    fcDev, 1, mean
+  )
+)
+
+```
+
+```{r Merge using common subjects}
+
+subjects <- intersect(rownames(avg.fcDev),
+                      rownames(ceg))
+avg.fcDev <- avg.fcDev[subjects,]
+ceg <- ceg[subjects,]
+model.data <- merge(avg.fcDev, ceg)
+
+```
+
+```{r Function to plot the results of linear model}
+
+plotRegression <- function (fit) {
+
+ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+  geom_point() +
+  stat_smooth(method = "lm") +
+  labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                     "Intercept = ",signif(fit$coef[[1]],5 ),
+                     " Slope = ",signif(fit$coef[[2]], 5),
+                     " P = ",signif(summary(fit)$coef[2,4], 5)))
+}
+
+```
+
+```{r}
+
+model <- lm(
+  data = model.data,
+  mean.dev ~ sdo.1 
+)
+print(summary(model))
+plotRegression(model)
+
+```
+
+```{r}
+
+model.data$cbrt_T2_LV <- model.data$T2_LV.1 ** (1/3)
+
+model <- lm(
+  data = model.data,
+  mean.dev ~ cbrt_T2_LV
+)
+summary(model)
+print(summary(model))
+plotRegression(model)
+
+```
+
+```{r}
+
+model <- lm(
+  data = model.data,
+  mean.dev ~ sx_2.6_norGMV.1
+)
+print(summary(model))
+plotRegression(model)
+
+```
+### Check if overall sample is cognitively impaired
+```{r Check if overall sample is cognitively impaired}
+
+control.ceg <- read.csv(
+  '../data/CEG_CTEVD_master_database_03122018_n=747-LMCE-MRI-update-lipids-disconnectome_hemostasis_cortical.csv',
+  header = 1,
+  sep = ","
+) %>%
+  filter(Disease_group.1 == 0) %>%
+  select(MRI_Exam_ID_FU_copy, 
+         Disease_group.1,
+         sdo.1)
+
+model.data$Disease_group.1 = 1
+
+```
+
+``` {r}
+
+t.test(model.data$sdo.1, y = control.ceg$sdo.1)
+
+disease_group = as.data.frame(rbind(
+    sdo.1 = cbind(model.data$Disease_group.1, model.data$sdo.1),
+    Disease_group.1 = cbind(control.ceg$Disease_group.1, control.ceg$sdo.1)
+  ))
+
+ggplot(
+  data = disease_group,
+  aes(x = V1,
+      y = V2, 
+      group = V1)
+  ) + 
+  geom_boxplot(alpha = 0.3) + 
+  labs(title = "P = 0.04957",
+       x = "Controls vs. MS Sample",
+       y = "Cognitive Processing Speed")
+
+```
+
 
 

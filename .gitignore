@@ -2,3 +2,5 @@
 .Rhistory
 .Rproj.user
 install_muti.R
+data/CEG_CTEVD_master_database_03122018_n=747-LMCE-MRI-update-lipids-disconnectome_hemostasis_cortical.csv
+data/CEG_database_w1000F_zscores.csv
