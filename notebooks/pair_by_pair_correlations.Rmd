@@ -1,0 +1,60 @@
+---
+title: "Strengths of Pair-by-Pair Correlations"
+output: html_notebook
+---
+
+
+```{r}
+
+dependencies <- c(
+  "tidyr",
+  "dplyr",
+  "stringr",
+  "cocor"
+)
+
+for (package in dependencies) {
+  if (!package %in% (.packages())) {
+    library(package,
+            character.only = T)
+  }
+}
+
+if (!exists("fcDev")) {
+  source('scripts/getData.R')
+  source('scripts/preprocessing.R')
+}
+
+subjects <- intersect(rownames(visual.fcDev),
+                      rownames(visual.discon))
+
+```
+
+```{r}
+
+for (pair in colnames(fcDev)) {
+  
+  model <- lm(
+    getRegion(region, fcDev[subjects,], inputName = "fcDev")$value ~
+      getRegion(region, discon[subjects,], inputName = "discon")$value
+  )
+  
+  rsq <- summary(model)$r.square
+  p <- str_split(
+    summary(model)[4],
+    " ",
+    simplify = T
+  )[8] %>%
+    str_remove("\\)") %>%
+    as.numeric()
+  
+  print(region)
+  print(rsq)
+  print(p)
+  
+  break
+  
+}
+
+```
+

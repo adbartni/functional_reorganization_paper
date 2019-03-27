@@ -1,4 +1,4 @@
-## Select columns by region, gather/spread, graph scatter of discon vs. bidir.fcDev
+## Select columns by region, gather/spread, graph scatter of discon vs. fcDev
 ## As well as adding a column for R sqaured and Mutual Information
 ## Now the p value for b1 as well
 
@@ -29,13 +29,13 @@ getRegion <- function(region, inputData, rowname = 'subject', inputName) {
   selectedRegion <- cbind(rownames(selectedRegion), selectedRegion)
   
   colnames(selectedRegion)[1] <- rowname
-
+  
   if (inputName == "discon") {
     outData <- selectedRegion %>%
       gather(key = "pair", value, -subject) %>%
       mutate(conType = "discon")
   }
-  else if (inputName == "bidir.fcDev") {
+  else if (inputName == "fcDev") {
     outData <- selectedRegion %>%
       gather(key = "pair", value, -subject) %>%
       mutate(conType = "fc")
@@ -64,13 +64,13 @@ addRsq_MI_cols <- function(data) {
     mutate(mi = paste("MI = ", mi.plugin(
       rbind(
         as.factor(discon), as.factor(fc)))
-      )
+    )
     ) %>%
     mutate(pval = paste("P = ", str_split(
       summary(lm(fc ~ discon))[4],
       " ",
       simplify = T
-      )[8]
+    )[8]
     ))
   return (data)
 }
@@ -92,24 +92,24 @@ addRsq_MI_cols <- function(data) {
 #' to a particular region
 plotRegionConnections <- function(region, discon.source) {
   
-  subjects <- intersect(rownames(bidir.fcDev),
+  subjects <- intersect(rownames(fcDev),
                         rownames(discon.source))
-  bidir.fcDev <- bidir.fcDev[subjects,]
+  fcDev <- fcDev[subjects,]
   discon.source <- discon.source[subjects,]
   
   region.discon <- getRegion(region, discon.source, inputName = "discon")
   # region.discon <- bcTransform(region.discon)
   
-  region.fc <- getRegion(region, bidir.fcDev, inputName = "bidir.fcDev")
+  region.fc <- getRegion(region, fcDev, inputName = "fcDev")
   # region.fc <- bcTransform(region.fc)
   # region.discon <- subset(region.discon, select = -c(value))
   # region.fc <- subset(region.fc, select = -c(value))
-
+  
   region.data <- rbind(region.discon, region.fc)
   data <- spread(region.data, "conType", "value")
-
+  
   data <- addRsq_MI_cols(data)
-
+  
   ggplot(data %>% drop_na(),
          aes(x = discon,
              y = fc)) +
