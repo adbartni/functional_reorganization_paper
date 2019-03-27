@@ -1,5 +1,6 @@
 ## Select columns by region, gather/spread, graph scatter of discon vs. fcDev
 ## As well as adding a column for R sqaured and Mutual Information
+## Now the p value for b1 as well
 
 library(tidyr)
 library(entropy)
@@ -97,14 +98,15 @@ plotRegionConnections <- function(region, discon.source) {
   discon.source <- discon.source[subjects,]
   
   region.discon <- getRegion(region, discon.source, inputName = "discon")
-  region.discon <- bcTransform(region.discon)
+  # region.discon <- bcTransform(region.discon)
+  
   region.fc <- getRegion(region, fcDev, inputName = "fcDev")
-  region.fc <- bcTransform(region.fc)
-  region.discon <- subset(region.discon, select = -c(value))
-  region.fc <- subset(region.fc, select = -c(value))
+  # region.fc <- bcTransform(region.fc)
+  # region.discon <- subset(region.discon, select = -c(value))
+  # region.fc <- subset(region.fc, select = -c(value))
 
   region.data <- rbind(region.discon, region.fc)
-  data <- spread(region.data, "conType", "trans")
+  data <- spread(region.data, "conType", "value")
 
   data <- addRsq_MI_cols(data)
 

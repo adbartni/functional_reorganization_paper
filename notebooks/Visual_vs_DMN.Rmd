@@ -4,6 +4,14 @@ output: html_notebook
 ---
 
 
+```{r Load dependencies, if not already loaded}
+
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(cocor)
+
+```
 
 ```{r Read in regions}
 
@@ -14,7 +22,8 @@ visual <- read.table('../data/SmithVisualNetwork.txt',
 dmn <- read.table('../data/SmithDMN.txt',
                   col.names = "regions",
                   header = F,
-                  encoding = "utf-8")
+                  encoding = "utf-8") %>%
+  filter(regions != "superiorfrontal")
 
 
 ```
@@ -57,7 +66,7 @@ subjects <- intersect(rownames(visual.fcDev),
                       rownames(visual.discon))
 
 model <- lm(
-        as.numeric(rowSums(visual.discon[subjects,])) ~ rowSums(visual.fcDev[subjects,])
+        rowSums(visual.fcDev[subjects,]) ~ rowSums(visual.discon[subjects,])
       )
 
 rsq <- summary(model)$adj
@@ -98,13 +107,13 @@ ggplot() +
 
 rsq <- summary(
   lm(
-    as.numeric(rowSums(dmn.discon[subjects,])) ~ rowSums(dmn.fcDev[subjects,])
+    (rowSums(dmn.fcDev[subjects,])) ~ rowSums(dmn.discon[subjects,])
   )
 )$adj
 
 pval <- str_split(
       summary(lm(
-        as.numeric(rowSums(dmn.discon[subjects,])) ~ rowSums(dmn.fcDev[subjects,])
+        rowSums(dmn.fcDev[subjects,]) ~ rowSums(dmn.discon[subjects,])
       ))[4],
       " ",
       simplify = T
@@ -133,6 +142,18 @@ ggplot() +
              inherit.aes = F,
              hjust = "inward",
              vjust = "inward")
+
+```
+
+```{r Test that the correlations of the two networks are different}
+
+cocor.indep.groups(
+    cor(rowSums(visual.discon[subjects,]), rowSums(visual.fcDev[subjects,])),
+    cor(rowSums(dmn.discon[subjects,]), rowSums(dmn.fcDev[subjects,])),
+    length(subjects),
+    length(subjects),
+    alternative = "g"
+)
 
 ```
 

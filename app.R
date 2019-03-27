@@ -27,6 +27,7 @@ ui <- dashboardPage(
   
   dashboardBody(
     
+    ## Sidebar
     tabItems(
       tabItem(tabName = "discon",
               fluidPage(
