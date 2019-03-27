@@ -1,4 +1,4 @@
-## Select columns by region, gather/spread, graph scatter of discon vs. fcDev
+## Select columns by region, gather/spread, graph scatter of discon vs. bidir.fcDev
 ## As well as adding a column for R sqaured and Mutual Information
 ## Now the p value for b1 as well
 
@@ -35,7 +35,7 @@ getRegion <- function(region, inputData, rowname = 'subject', inputName) {
       gather(key = "pair", value, -subject) %>%
       mutate(conType = "discon")
   }
-  else if (inputName == "fcDev") {
+  else if (inputName == "bidir.fcDev") {
     outData <- selectedRegion %>%
       gather(key = "pair", value, -subject) %>%
       mutate(conType = "fc")
@@ -92,15 +92,15 @@ addRsq_MI_cols <- function(data) {
 #' to a particular region
 plotRegionConnections <- function(region, discon.source) {
   
-  subjects <- intersect(rownames(fcDev),
+  subjects <- intersect(rownames(bidir.fcDev),
                         rownames(discon.source))
-  fcDev <- fcDev[subjects,]
+  bidir.fcDev <- bidir.fcDev[subjects,]
   discon.source <- discon.source[subjects,]
   
   region.discon <- getRegion(region, discon.source, inputName = "discon")
   # region.discon <- bcTransform(region.discon)
   
-  region.fc <- getRegion(region, fcDev, inputName = "fcDev")
+  region.fc <- getRegion(region, bidir.fcDev, inputName = "bidir.fcDev")
   # region.fc <- bcTransform(region.fc)
   # region.discon <- subset(region.discon, select = -c(value))
   # region.fc <- subset(region.fc, select = -c(value))

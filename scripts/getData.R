@@ -34,6 +34,14 @@ fcDev <- read.table(
 )
 fmri.cols <- colnames(fcDev)
 
+bidir.fcDev <- read.table(
+  'data/bidirectional_fc_dev.csv',
+  sep = ",",
+  encoding = "utf-8",
+  header = 1,
+  row.names = 1
+)
+
 HC <- read.table(
   'data/control_part_cor.csv',
   sep = ",",

@@ -6,10 +6,24 @@ output: html_notebook
 
 ```{r Load dependencies, if not already loaded}
 
-library(tidyr)
-library(dplyr)
-library(stringr)
-library(cocor)
+dependencies <- c(
+  "tidyr",
+  "dplyr",
+  "stringr",
+  "cocor"
+)
+
+for (package in dependencies) {
+  if (!package %in% (.packages())) {
+    library(package,
+            character.only = T)
+  }
+}
+
+if (!exists("fcDev")) {
+  source('scripts/getData.R')
+  source('scripts/preprocessing.R')
+}
 
 ```
 
@@ -19,6 +33,7 @@ visual <- read.table('../data/SmithVisualNetwork.txt',
                      col.names = "regions",
                      header = F,
                      encoding = "utf-8")
+
 dmn <- read.table('../data/SmithDMN.txt',
                   col.names = "regions",
                   header = F,
@@ -60,88 +75,77 @@ dmn.discon <- isolateNetworkPairs(dmn, discon)
 
 ```
 
+```{r Quick Visualization Function}
+
+quickScatterPlot <- function(fc.input, discon.input, network) {
+  
+  model <- lm(
+    fc.input ~ discon.input
+  )
+  
+  rsq <- summary(model)$r.square
+  
+  pval <- str_split(
+    summary(model)[4], " ", simplify = T)[8]
+  
+  ggplot() +
+    geom_point(
+      aes(x = discon.input,
+          y = fc.input)
+    ) + 
+    labs(title = network,
+         x = "Structural Disconnection within Network",
+         y = "Change in Functional Connectivity within Network") + 
+    geom_label(
+      aes(x = Inf,
+          y = Inf,
+          label = paste("R2 = ",rsq)),
+      inherit.aes = F,
+      hjust = "inward",
+      vjust = "inward"
+    ) + 
+    geom_label(
+      aes(x = Inf,
+          y = -Inf,
+          label = paste("P = ",pval)),
+      inherit.aes = F,
+      hjust = "inward",
+      vjust = "inward"
+    )
+  
+}
+
+```
+
+
 ```{r Visual: Plot sum of structural disconnection vs sum of functional deviation}
 
 subjects <- intersect(rownames(visual.fcDev),
                       rownames(visual.discon))
 
-model <- lm(
-        rowSums(visual.fcDev[subjects,]) ~ rowSums(visual.discon[subjects,])
-      )
+quickScatterPlot(rowSums(visual.fcDev[subjects,]), rowSums(visual.discon[subjects,]), "Visual")
 
-rsq <- summary(model)$adj
+```
 
-pval <- str_split(
-      summary(model)[4],
-      " ",
-      simplify = T
-)[8]
+```{r Visual: Plot sum of structural disconnection vs sum of functional deviation}
 
-ggplot() + 
-  geom_point(
-    aes(x = rowSums(visual.discon[subjects,]),
-        y = rowSums(visual.fcDev[subjects,]))
-  ) + 
-  geom_smooth(method = "lm") + 
-  labs(
-    title = "Visual Network",
-    x = "Sum of Structural Disconnection within Network",
-    y = "Total Change in Functional Connectivity within Network"
-  ) + 
-  geom_label(aes(x = Inf,
-                   y = Inf,
-                   label = paste("R2 = ", rsq)),
-               inherit.aes = F,
-               hjust = "inward",
-               vjust = "inward") + 
-  geom_label(aes(x = Inf,
-                 y= -Inf,
-                 label = paste("P = ", pval)),
-             inherit.aes = F,
-             hjust = "inward",
-             vjust = "inward")
+quickScatterPlot(apply(visual.fcDev[subjects,], 1, mean),
+                 apply(visual.discon[subjects,], 1, mean),
+                 "Visual")
 
 ```
 
 ```{r DMN: Plot sum of structural disconnection vs sum of functional deviation}
 
-rsq <- summary(
-  lm(
-    (rowSums(dmn.fcDev[subjects,])) ~ rowSums(dmn.discon[subjects,])
-  )
-)$adj
+quickScatterPlot(rowSums(dmn.fcDev[subjects,]), rowSums(dmn.discon[subjects,]), "Default Mode Network")
 
-pval <- str_split(
-      summary(lm(
-        rowSums(dmn.fcDev[subjects,]) ~ rowSums(dmn.discon[subjects,])
-      ))[4],
-      " ",
-      simplify = T
-)[8]
+```
 
-ggplot() + 
-  geom_point(
-    aes(x = rowSums(dmn.discon[subjects,]),
-        y = rowSums(dmn.fcDev[subjects,]))
-  ) + 
-  geom_smooth(method = "lm") + 
-  labs(
-    title = "Default Mode Network",
-    x = "Sum of Structural Disconnection within Network",
-    y = "Total Change in Functional Connectivity within Network"
-  ) +
-  geom_label(aes(x = Inf,
-                   y = Inf,
-                   label = paste("R2 = ", rsq)),
-               inherit.aes = F,
-               hjust = "inward",
-               vjust = "inward") + 
-  geom_label(aes(x = Inf,
-                 y= -Inf,
-                 label = paste("P = ", pval)),
-             inherit.aes = F,
-             hjust = "inward",
-             vjust = "inward")
+```{r DMN: Plot sum of structural disconnection vs sum of functional deviation}
+
+quickScatterPlot(apply(dmn.fcDev[subjects,], 1, mean),
+                 apply(dmn.discon[subjects,], 1, mean),
+                 "Default Mode Network")
 
 ```
 
@@ -150,6 +154,18 @@ ggplot() +
 cocor.indep.groups(
     cor(rowSums(visual.discon[subjects,]), rowSums(visual.fcDev[subjects,])),
     cor(rowSums(dmn.discon[subjects,]), rowSums(dmn.fcDev[subjects,])),
+    length(subjects),
+    length(subjects),
+    alternative = "g"
+)
+
+```
+
+```{r}
+
+cocor.indep.groups(
+    cor(apply(visual.fcDev[subjects,], 1, mean), apply(visual.discon[subjects,], 1, mean)),
+    cor(apply(dmn.fcDev[subjects,], 1, mean), apply(dmn.discon[subjects,], 1, mean)),
     length(subjects),
     length(subjects),
     alternative = "g"

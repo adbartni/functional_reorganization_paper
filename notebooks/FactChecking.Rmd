@@ -22,6 +22,8 @@ for (package in dependencies) {
   }
 }
 
+library(EnvStats)
+
 if (!exists("fcDev")) {
   source('scripts/getData.R')
   source('scripts/preprocessing.R')
