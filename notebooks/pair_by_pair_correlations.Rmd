@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 
-```{r}
+```{r Load in dependencies and functions if not already loaded}
 
 dependencies <- c(
   "tidyr",
@@ -21,25 +21,30 @@ for (package in dependencies) {
 }
 
 if (!exists("fcDev")) {
-  source('scripts/getData.R')
-  source('scripts/preprocessing.R')
+  source('../scripts/getData.R')
+  source('../scripts/preprocessing.R')
 }
 
-subjects <- intersect(rownames(visual.fcDev),
-                      rownames(visual.discon))
+source('../scripts/getRegionConnections.R')
+
+subjects <- intersect(rownames(fcDev),
+                      rownames(discon))
 
 ```
 
-```{r}
+```{r Aggregate dataframe of R squared, Pearson coefficient, and p-value for each pair}
+
+pairwise.stats <- data.frame()
 
 for (pair in colnames(fcDev)) {
   
   model <- lm(
-    getRegion(region, fcDev[subjects,], inputName = "fcDev")$value ~
-      getRegion(region, discon[subjects,], inputName = "discon")$value
+    getRegion(pair, fcDev[subjects,], inputName = "fcDev")$value ~
+      getRegion(pair, discon[subjects,], inputName = "discon")$value
   )
   
   rsq <- summary(model)$r.square
+  
   p <- str_split(
     summary(model)[4],
     " ",
@@ -48,13 +53,53 @@ for (pair in colnames(fcDev)) {
     str_remove("\\)") %>%
     as.numeric()
   
-  print(region)
-  print(rsq)
-  print(p)
+  rho <- cor(
+    getRegion(pair, fcDev[subjects,], inputName = "fcDev")$value,
+    getRegion(pair, discon[subjects,], inputName = "discon")$value
+  )
   
-  break
-  
+  ## Create small dataframe just for the current pair
+  region.df <- data.frame(
+    "pair" = pair,
+    "r.square" = rsq,
+    "rho" = rho,
+    "pval" = p
+  )
+
+  ## Add data from current pair onto the dataframe of all pairs
+    pairwise.stats <- rbind(pairwise.stats, region.df) %>% 
+      arrange(pval)
 }
+
+```
+
+```{r Check the correlation between the p-values and r squareds of each pair}
+
+cor(
+  pairwise.stats$pval,
+  pairwise.stats$r.square
+)
+
+```
+
+```{r Visualize the relationship between p-values and r squareds of each pair}
+
+ggplot(data = pairwise.stats,
+  aes(
+    x = pval,
+    y = r.square)) + 
+  geom_point()
+
+```
+
+```{r Visualize the relationship between Pearon coefficient and R squared for each pair}
+
+ggplot(data = pairwise.stats,
+       aes(
+         x = abs(rho),
+         y = r.square
+       )) + 
+  geom_point()
 
 ```
 

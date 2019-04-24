@@ -1,0 +1,6 @@
+rh_lateraloccipital
+rh_lingual
+Right_Thalamus_Proper
+lh_lateralocciptal
+lh_lingual
+Left_Thalamus_Proper

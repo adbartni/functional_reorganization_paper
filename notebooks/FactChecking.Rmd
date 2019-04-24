@@ -63,6 +63,7 @@ ceg <- read.csv(
   header = 1
 )
 
+## Select only the data we care about
 rownames(ceg) <- ceg$Subject.ID
 ceg <- subset(ceg, 
               select = c(
@@ -100,7 +101,7 @@ model.data <- merge(avg.fcDev, ceg)
 
 ```{r Function to plot the results of linear model}
 
-plotRegression <- function (fit) {
+plotRegression <- function (fit, x.axis) {
 
 ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
   geom_point() +
@@ -108,7 +109,9 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
   labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
                      "Intercept = ",signif(fit$coef[[1]],5 ),
                      " Slope = ",signif(fit$coef[[2]], 5),
-                     " P = ",signif(summary(fit)$coef[2,4], 5)))
+                     " P = ",signif(summary(fit)$coef[2,4], 5)),
+      x = x.axis,
+      y = "Average Deviation in Functional Connectivity")
 }
 
 ```
@@ -120,7 +123,7 @@ model <- lm(
   mean.dev ~ sdo.1 
 )
 print(summary(model))
-plotRegression(model)
+plotRegression(model, "Cognitive Processing Speed")
 
 ```
 
@@ -134,7 +137,7 @@ model <- lm(
 )
 summary(model)
 print(summary(model))
-plotRegression(model)
+plotRegression(model, "T2 Lesion Volume")
 
 ```
 
@@ -145,7 +148,7 @@ model <- lm(
   mean.dev ~ sx_2.6_norGMV.1
 )
 print(summary(model))
-plotRegression(model)
+plotRegression(model, "Grey Matter Volume")
 
 ```
 ### Check if overall sample is cognitively impaired
