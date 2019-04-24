@@ -37,6 +37,8 @@ fcDev <- fcDev[,sd.pairs]
 bidir.fcDev <- bidir.fcDev[,sd.pairs]
 dti <- dti[,sd.pairs]
 
+pairs <- colnames(fcDev)
+
 
 ## Remove outliers 
 remove <- c("55107", "55831", "71751")

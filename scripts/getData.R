@@ -54,6 +54,13 @@ HC <- read.table(
 pairs <- colnames(discon)
 # isolated.pairs <- c(readLines('data/IsolatedPairs.csv'))
 isolated.pairs <- c(readLines('data/SignificantlyDisruptedPairs.csv'))
+smith.networks <- c()
+for (network in dir('data/SmithNetworks')) {
+  smith.networks <- append(
+    smith.networks,
+    str_split(network, '\\.', simplify = T)[1] %>% str_remove("Smith")
+  )
+}
 
 ## Get names of regions from atlas
 regions <- c(readLines('data/atlas_labels.txt'))
