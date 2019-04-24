@@ -2,18 +2,22 @@ library(shiny)
 library(shinythemes)
 library(shinydashboard)
 
+
 source('scripts/getData.R')
 source('scripts/preprocessing.R')
 source('scripts/getRegionConnections.R')
 source('scripts/getSelectedPair.R')
+source('scripts/getNetworkConnections.R')
+
 
 sidebar <- dashboardSidebar(
-  
   sidebarMenu(
     menuItem("Proportional Lesional ChaCo",
              tabName = "discon"),
     menuItem("Diffusion FA",
-             tabName = "dti")
+             tabName = "dti"),
+    menuItem("Smith Networks",
+             tabName = "smith")
   )
 )
 
@@ -55,6 +59,21 @@ ui <- dashboardPage(
                 
                 plotOutput("dtiPlot")
               )
+      ),
+      
+      tabItem(tabName = "smith",
+              fluidPage(
+                
+                box(
+                  title = "Select which resting state network you would like to examine",
+                  selectInput(inputId = "network",
+                              label = strong("Smith Network"),
+                              choices = smith.networks)
+                ),
+                
+                plotOutput("smithPlot")
+              )
+        
       )
     )
   )
@@ -66,23 +85,22 @@ ui <- dashboardPage(
 server <- function(input, output) {
   
    output$disconPlot <- renderPlot({
-     
      region.discon <- input$region.discon
      plotRegionConnections(region.discon, discon)
 
-   },
-   height = 720, 
-   width = 1300)
+   })
    
    output$dtiPlot <- renderPlot({
-     
      region.dti <- input$region.dti
      plotRegionConnections(region.dti, dti)
      
-   },
-   height = 720, 
-   width = 1300)
+   })
+   
+   output$smithPlot <- renderPlot({
+     network <- input$network
+     plotNetworkSums(network)
+   })
 }
 
 ## Run the application 
-shinyApp(ui = ui, server = server)
+app <- shinyApp(ui = ui, server = server)
