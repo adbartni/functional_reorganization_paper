@@ -71,7 +71,9 @@ ui <- dashboardPage(
                               choices = smith.networks)
                 ),
                 
-                plotOutput("smithPlot")
+                box(plotOutput("smithPlot")),
+                box(plotOutput("intraSmithPlot")),
+                box(plotOutput("interSmithPlot"))
               )
         
       )
@@ -94,6 +96,16 @@ server <- function(input, output) {
      region.dti <- input$region.dti
      plotRegionConnections(region.dti, dti)
      
+   })
+   
+   output$intraSmithPlot <- renderPlot({
+     network <- input$network
+     plotIntraNetworkSums(network)
+   })
+   
+   output$interSmithPlot <- renderPlot({
+     network <- input$network
+     plotInterNetworkSums(network)
    })
    
    output$smithPlot <- renderPlot({
