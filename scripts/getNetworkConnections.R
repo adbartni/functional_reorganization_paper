@@ -1,3 +1,6 @@
+## This code is very WET;
+## Needs to be cleaned soon;
+
 dependencies <- c(
   "dplyr",
   "stringr"
