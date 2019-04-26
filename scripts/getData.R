@@ -1,5 +1,6 @@
 ## Read in databases
 library(dplyr)
+library(stringr)
 
 
 discon <- read.table(
