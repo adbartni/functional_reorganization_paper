@@ -1,4 +1,6 @@
 ## Read in databases
+library(dplyr)
+
 
 discon <- read.table(
   'data/matched_discon.csv', 
