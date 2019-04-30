@@ -1,0 +1,80 @@
+---
+title: "Comparative Network Analyses"
+author: "Alex Bartnik"
+date: "April 30, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r Load dependencies}
+
+dependencies <- c(
+  "dplyr",
+  "ggplot2"
+)
+
+for (package in dependencies) {
+  if (!package %in% (.packages())) {
+    library(package,
+            character.only = T)
+  }
+}
+
+if (!exists("fcDev")) {
+  source('../scripts/getData.R')
+  source('../scripts/preprocessing.R')
+}
+source('../scripts/getNetworkConnections.R')
+
+```
+
+```{r}
+
+setwd('/home/anacadmin/R/projects/scatters/')
+inter.dmn <- getInterNetworkPairs(getNetworkRegions("DMN"))
+intra.dmn <- getIntraNetworkPairs(getNetworkRegions("DMN"))
+# all.dmn <- colnames(isolateNetworkPairs("DMN", fcDev))
+
+subjects <- intersect(rownames(fcDev), rownames(dti))
+dmn.fcDev <- rbind(
+  fcDev[subjects, inter.dmn] %>%
+    mutate(subject = subjects) %>%
+    gather(
+      key = "pair",
+      value = "fcDev",
+      -subject
+    ) %>%
+    mutate(location = "inter"),
+  fcDev[subjects, intra.dmn] %>%
+    mutate(subject = subjects) %>%
+    gather(
+      key = "pair",
+      value = "fcDev",
+      -subject
+    ) %>%
+    mutate(location = "intra")
+)
+
+```
+
+```{r}
+
+setwd('/home/anacadmin/R/projects/scatters/')
+for (network in smith.networks) {
+  plotNetworkSums(network, "Diffusion")
+}
+
+```
+
+
+
+

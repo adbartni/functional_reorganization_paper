@@ -16,10 +16,8 @@ sidebar <- dashboardSidebar(
              tabName = "discon"),
     menuItem("Diffusion FA",
              tabName = "dti"),
-    menuItem("NeMo Smith Networks",
-             tabName = "nemosmith"),
-    menuItem("Diffusion Smith Networks",
-             tabName = "dtismith")
+    menuItem("Smith Networks",
+             tabName = "nemosmith")
   )
 )
 
@@ -71,28 +69,9 @@ ui <- dashboardPage(
                   selectInput(inputId = "network",
                               label = strong("Smith Network"),
                               choices = smith.networks),
-                  selectInput(inputId = "source.discon",
-                              label = "Proportional NeMo",
-                              choices = "Proportional NeMo")
-                ),
-
-                box(plotOutput("smithPlot")),
-                box(plotOutput("intraSmithPlot")),
-                box(plotOutput("interSmithPlot"))
-              )
-      ),
-
-      tabItem(tabName = "dtismith",
-              fluidPage(
-
-                box(
-                  title = "Select which resting state network you would like to examine",
-                  selectInput(inputId = "network",
-                              label = strong("Smith Network"),
-                              choices = smith.networks),
-                  selectInput(inputId = "source.dti",
-                              label = "Diffusion FA",
-                              choices = "Diffusion FA")
+                  selectInput(inputId = "disconSource",
+                              label = strong("Proportional ChaCo or Diffusion FA"),
+                              choices = c("ChaCo", "Diffusion"))
                 ),
 
                 box(plotOutput("smithPlot")),
@@ -121,17 +100,20 @@ server <- function(input, output) {
    
    output$intraSmithPlot <- renderPlot({
      network <- input$network
-     plotIntraNetworkSums(network)
+     disconSource <- input$disconSource
+     plotIntraNetworkSums(network, disconSource)
    })
    
    output$interSmithPlot <- renderPlot({
      network <- input$network
-     plotInterNetworkSums(network)
+     disconSource <- input$disconSource
+     plotInterNetworkSums(network, disconSource)
    })
    
    output$smithPlot <- renderPlot({
      network <- input$network
-     plotNetworkSums(network)
+     disconSource <- input$disconSource
+     plotNetworkSums(network, disconSource)
    })
 }
 
