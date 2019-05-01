@@ -19,6 +19,7 @@ When you click the **Knit** button a document will be generated that includes bo
 
 dependencies <- c(
   "dplyr",
+  "tidyr",
   "ggplot2"
 )
 
@@ -39,36 +40,76 @@ source('../scripts/getNetworkConnections.R')
 
 ```{r}
 
-setwd('/home/anacadmin/R/projects/scatters/')
-inter.dmn <- getInterNetworkPairs(getNetworkRegions("DMN"))
-intra.dmn <- getIntraNetworkPairs(getNetworkRegions("DMN"))
-# all.dmn <- colnames(isolateNetworkPairs("DMN", fcDev))
+setwd('/home/alex/R/scatters/')
+gatherAllPairsPerNetwork <- function(network.name) {
+  
+  internetworkpairs <- getInterNetworkPairs(getNetworkRegions(network.name))
+  intranetworkpairs <- getIntraNetworkPairs(getNetworkRegions(network.name))
 
-subjects <- intersect(rownames(fcDev), rownames(dti))
-dmn.fcDev <- rbind(
-  fcDev[subjects, inter.dmn] %>%
-    mutate(subject = subjects) %>%
-    gather(
-      key = "pair",
-      value = "fcDev",
-      -subject
+  subjects <- intersect(rownames(fcDev), rownames(dti))
+  disease.group <- disease.groups[subjects,]
+  
+  combinePairs <- function(inputData, source.name, inter.network, intra.network, disease.group) {
+    rbind(
+      cbind(inputData[subjects, inter.network], disease.group) %>%
+        mutate(subject = subjects) %>%
+        gather(
+          key = "pair",
+          value = source.name,
+          -subject, -disease.group
+        ) %>%
+        mutate(location = "Internetwork"),
+      cbind(inputData[subjects, intra.network], disease.group) %>%
+        mutate(subject = subjects) %>%
+        gather(
+          key = "pair",
+          value = source.name,
+          -subject, -disease.group
+        ) %>%
+        mutate(location = "Intranetwork")
     ) %>%
-    mutate(location = "inter"),
-  fcDev[subjects, intra.dmn] %>%
-    mutate(subject = subjects) %>%
-    gather(
-      key = "pair",
-      value = "fcDev",
-      -subject
-    ) %>%
-    mutate(location = "intra")
-)
+      group_by(subject, location, disease.group) %>%
+      summarise(source.name = mean(inputData))
+  }
+  
+  network.fcDev <- combinePairs(
+    fcDev,
+    "fcDev",
+    getInterNetworkPairs(getNetworkRegions(network.name)),
+    getIntraNetworkPairs(getNetworkRegions(network.name)),
+    disease.group
+  )
+  network.dti <- combinePairs(
+    dti,
+    "dti",
+    getInterNetworkPairs(getNetworkRegions(network.name)),
+    getIntraNetworkPairs(getNetworkRegions(network.name)),
+    disease.group
+  )
+  network <- merge(network.fcDev, network.dti)
+  
+  return (network)
+  
+}
+
+gatherAllPairsPerNetwork("DMN")
 
 ```
 
 ```{r}
 
-setwd('/home/anacadmin/R/projects/scatters/')
+ggplot(dmn,
+       aes(x = dti,
+           y = fcDev,
+           color = dmn.disease.groups)) + 
+  geom_point() + 
+  facet_grid(. ~ location)
+
+```
+
+```{r}
+
+setwd('/home/alex/R/scatters/')
 for (network in smith.networks) {
   plotNetworkSums(network, "Diffusion")
 }
