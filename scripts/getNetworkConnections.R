@@ -47,8 +47,10 @@ plotIntraNetworkSums <- function(network.name, disconSource) {
 
   fc.network <- fcDev[subjects, intranetwork.pairs]
   discon.network <- input.discon[subjects, intranetwork.pairs]
+  disease_group <- disease.groups[subjects,]
   data <- data.frame(fc = rowMeans(fc.network),
-                     discon = rowMeans(discon.network))
+                     discon = rowMeans(discon.network),
+                     disease.group = disease_group)
   
   quickScatterPlot(data, network.name,
                    x.axis = "Structural Disruption to Regions Within Network",
@@ -66,8 +68,10 @@ plotInterNetworkSums <- function(network.name, disconSource) {
   
   fc.outter <- fcDev[subjects, internetwork.pairs]
   discon.outter <- input.discon[subjects, internetwork.pairs]
+  disease_group <- disease.groups[subjects,]
   data <- data.frame(fc = rowMeans(fc.outter),
-                     discon = rowMeans(discon.outter))
+                     discon = rowMeans(discon.outter),
+                     disease.group = disease_group)
   
   quickScatterPlot(data, network.name,
                    x.axis = "Structural Disruption to Regions Outside of Network",
