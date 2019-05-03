@@ -121,25 +121,41 @@ for (network in smith.networks) {
   if (network != "Cerbellum") {
     print(network)
     plotIntraNetworkSums(network, "Diffusion")
-    ggsave(paste("Intranetwork",network,".svg",sep=""),
+    ggsave(paste("Intranetwork",network,".png",sep=""),
            path = "figures/",
-           width = 6,
-           height = 5)
+           width = 8,
+           height = 6,
+           dpi = 200)
     
     plotInterNetworkSums(network, "Diffusion")
-    ggsave(paste("Internetwork",network,".svg",sep=""),
+    ggsave(paste("Internetwork",network,".png",sep=""),
            path = "figures/",
-           width = 6,
-           height = 5)
+           width = 10,
+           height = 6,
+           dpi = 200)
     
     plotNetworkSums(network, "Diffusion")
-    ggsave(paste(network,".svg",sep=""),
+    ggsave(paste("WithinNetworkFC_",network,".png",sep=""),
            path = "figures/",
-           width = 6,
-           height = 5)
+           width = 10,
+           height = 6,
+           dpi = 200)
+    
+    plotNetworkSums(network, "Diffusion", T)
+    ggsave(paste("TotalFC_",network,".png",sep=""),
+           path = "figures/",
+           width = 10,
+           height = 6,
+           dpi = 200)
   }
   
 }
+
+```
+
+```{bash}
+
+cd /home/anacadmin/R/projects/scatters/figures; ./montage.sh
 
 ```
 
