@@ -39,95 +39,65 @@ getNetworkRegions <- function(network.name) {
 ########################
 ## Plotting functions ##
 ########################
-plotIntraNetworkMeans <- function(network.name, disconSource) {
-  
+plotNetworkMeans <- function(network.name, disconSource, location = "total", intra.fc = F) {
+  location <- tolower(location)
   input.discon <- chooseDisconSource(disconSource)
   subjects <- intersect(rownames(fcDev),
                         rownames(input.discon))
-  intranetwork.pairs <- getIntraNetworkPairs(getNetworkRegions(network.name))
-
-  fc.network <- fcDev[subjects, intranetwork.pairs]
-  discon.network <- input.discon[subjects, intranetwork.pairs]
-  disease_group <- disease.groups[subjects,]
-  data <- data.frame(fc = rowMeans(fc.network),
-                     discon = rowMeans(discon.network),
-                     disease.group = disease_group)
   
-  quickScatterPlot(data, network.name,
-                   x.axis = "Structural Disruption to Regions Within Network",
-                   y.axis = "Change in Functional Connectivity to Regions Within Network",
-                   title = 
-                     paste("Within Network Structural Disruption vs Within Network Functional Change for",
-                           network.name))
-
-}
-
-
-plotInterNetworkMeans <- function(network.name, disconSource) {
-  
-  input.discon <- chooseDisconSource(disconSource)
-  subjects <- intersect(rownames(fcDev),
-                        rownames(input.discon))
-  internetwork.pairs <- getInterNetworkPairs(getNetworkRegions(network.name))
-  
-  fc.outter <- fcDev[subjects, internetwork.pairs]
-  discon.outter <- input.discon[subjects, internetwork.pairs]
-  disease_group <- disease.groups[subjects,]
-  data <- data.frame(fc = rowMeans(fc.outter),
-                     discon = rowMeans(discon.outter),
-                     disease.group = disease_group)
-  
-  quickScatterPlot(data, network.name,
-                   x.axis = "Structural Disruption to Regions Outside of Network",
-                   y.axis = "Change in Functional Connectivity to Regions Outside of Network",
-                   title = paste("Total Structural Disruption vs Total Functional Change for",network.name))
-  
-}
-
-
-plotNetworkMeans <- function(network.name, disconSource, intra.fc = F) {
-  
-  input.discon <- chooseDisconSource(disconSource)
-  subjects <- intersect(rownames(fcDev),
-                        rownames(input.discon))
-  isolateNetworkPairs <- function(network, inputData) {
-    networkData <- data.frame(row.names = rownames(inputData))
+  if (location == "intra") {
+    fc.network <- fcDev[subjects, getIntraNetworkPairs(getNetworkRegions(network.name))]
+    discon.network <- input.discon[subjects, getIntraNetworkPairs(getNetworkRegions(network.name))]
+    disease_group <- disease.groups[subjects,]
+    data <- data.frame(fc = rowMeans(fc.network),
+                       discon = rowMeans(discon.network),
+                       disease.group = disease_group)
+    x.title <- "Structural Disruption to Regions Within Network"
+    y.title <- "Change in Functional Connectivity to Regions Within Network"
+    plot.title <- paste("Within Network Structural Disruption vs Within Network Functional Change for",
+                        network.name)
     
-    for (region in getNetworkRegions(network)) {
-      networkData <- cbind(
-        inputData[, grep(region, names(inputData))],
-        networkData
-      )
+  } else if (location == "inter") {
+    fc.outter <- fcDev[subjects, getInterNetworkPairs(getNetworkRegions(network.name))]
+    discon.outter <- input.discon[subjects, getInterNetworkPairs(getNetworkRegions(network.name))]
+    disease_group <- disease.groups[subjects,]
+    data <- data.frame(fc = rowMeans(fc.outter),
+                       discon = rowMeans(discon.outter),
+                       disease.group = disease_group)
+    x.title <- "Structural Disruption to Regions Outside of Network"
+    y.title <- "Change in Functional Connectivity to Regions Outside of Network"
+    plot.title <- paste("Total Structural Disruption vs Total Functional Change for",network.name)
+    
+  } else if (location == "total") {
+    
+    if (intra.fc == T) {
+      fc.pairs <- fcDev[subjects, getIntraNetworkPairs(getNetworkRegions(network.name))]
+    } else {
+      fc.pairs <- isolateNetworkPairs(network.name, fcDev)
+      fc.pairs <- fc.pairs[subjects,]
     }
-    return (networkData)
-  }
-  
-  if (intra.fc == T) {
-    fc.pairs <- fcDev[subjects, getIntraNetworkPairs(getNetworkRegions(network.name))]
+    
+    discon.pairs <- isolateNetworkPairs(network.name, input.discon)
+    discon.pairs <- discon.pairs[subjects,]
+    disease_group <- disease.groups[subjects,]
+    data <- data.frame(fc = rowMeans(fc.pairs),
+                       discon = rowMeans(discon.pairs),
+                       disease.group = disease_group)
+    x.title = "Structural Disruption to All Pairs with Regions Involved in Network"
+    y.title = "Change in Functional Connectivity"
+    if (intra.fc == T) {
+      plot.title = 
+        paste("Total Structural Disruption vs Within Network Functional Change for",network.name)
+    } else {
+      plot.title = 
+        paste("Total Structural Disruption vs Total Functional Change for",network.name)
+    }
+    
   } else {
-    fc.pairs <- isolateNetworkPairs(network.name, fcDev)
-    fc.pairs <- fc.pairs[subjects,]
+    print("Please enter a valid location parameter ('intra,' 'inter,' 'total')")
   }
   
-  discon.pairs <- isolateNetworkPairs(network.name, input.discon)
-  discon.pairs <- discon.pairs[subjects,]
-  disease_group <- disease.groups[subjects,]
-  data <- data.frame(fc = rowMeans(fc.pairs),
-                     discon = rowMeans(discon.pairs),
-                     disease.group = disease_group)
-  
-  quickScatterPlot(data, network.name,
-                   x.axis = "Structural Disruption to All Pairs with Regions Involved in Network",
-                   y.axis = "Change in Functional Connectivity",
-                   {
-                     if (intra.fc == T) {
-                       title = 
-                         paste("Total Structural Disruption vs Within Network Functional Change for",network.name)
-                     } else {
-                       title = 
-                         paste("Total Structural Disruption vs Total Functional Change for",network.name)
-                     }
-                   })
+  quickScatterPlot(data, network.name, x.title, y.title, plot.title)
   
 }
 
@@ -263,4 +233,16 @@ chooseDisconSource <- function(disconSource) {
     outputData <- NULL
   }
   return (outputData)
+}
+
+isolateNetworkPairs <- function(network, inputData) {
+  networkData <- data.frame(row.names = rownames(inputData))
+  
+  for (region in getNetworkRegions(network)) {
+    networkData <- cbind(
+      inputData[, grep(region, names(inputData))],
+      networkData
+    )
+  }
+  return (networkData)
 }

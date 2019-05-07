@@ -101,13 +101,13 @@ server <- function(input, output) {
    output$intraSmithPlot <- renderPlot({
      network <- input$network
      disconSource <- input$disconSource
-     plotIntraNetworkMeans(network, disconSource)
+     plotNetworkMeans(network, disconSource, "intra")
    })
    
    output$interSmithPlot <- renderPlot({
      network <- input$network
      disconSource <- input$disconSource
-     plotInterNetworkMeans(network, disconSource)
+     plotNetworkMeans(network, disconSource, "inter")
    })
    
    output$smithPlot <- renderPlot({
