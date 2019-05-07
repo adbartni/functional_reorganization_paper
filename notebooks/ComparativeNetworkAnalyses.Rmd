@@ -121,22 +121,25 @@ for (network in smith.networks) {
   if (network != "Cerbellum") {
     print(network)
     plotIntraNetworkSums(network, "Diffusion")
-    ggsave(paste("Intranetwork",network,".svg",sep=""),
+    ggsave(paste("Intranetwork",network,".png",sep=""),
            path = "figures/",
            width = 6,
-           height = 5)
+           height = 5,
+           dpi = 20)
     
     plotInterNetworkSums(network, "Diffusion")
-    ggsave(paste("Internetwork",network,".svg",sep=""),
+    ggsave(paste("Internetwork",network,".png",sep=""),
            path = "figures/",
            width = 6,
-           height = 5)
+           height = 5,
+           dpi = 20)
     
     plotNetworkSums(network, "Diffusion")
-    ggsave(paste(network,".svg",sep=""),
+    ggsave(paste(network,".png",sep=""),
            path = "figures/",
            width = 6,
-           height = 5)
+           height = 5,
+           dpi = 20)
   }
   
 }
