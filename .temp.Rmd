@@ -1,0 +1,190 @@
+---
+title: "Comparative Network Analyses"
+author: "Alex Bartnik"
+date: "April 30, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r Load dependencies}
+
+dependencies <- c(
+  "dplyr",
+  "tidyr",
+  "ggplot2"
+)
+
+for (package in dependencies) {
+  if (!package %in% (.packages())) {
+    library(package,
+            character.only = T)
+  }
+}
+
+if (!exists("fcDev")) {
+  source('../scripts/getData.R')
+  source('../scripts/preprocessing.R')
+}
+source('../scripts/getNetworkConnections.R')
+
+```
+
+```{r}
+
+setwd('/home/anacadmin/R/projects/scatters')
+gatherAllPairsPerNetwork <- function(network.name) {
+  
+  internetworkpairs <- getInterNetworkPairs(getNetworkRegions(network.name))
+  intranetworkpairs <- getIntraNetworkPairs(getNetworkRegions(network.name))
+
+  subjects <- intersect(rownames(fcDev), rownames(dti))
+  `Disease Group` <- disease.groups[subjects,]
+  
+  combinePairs <- function(inputData, source.name, inter.network, intra.network, disease.group) {
+    rbind(
+      cbind(inputData[subjects, inter.network], `Disease Group`) %>%
+        mutate(subject = subjects) %>%
+        gather(
+          key = "pair",
+          value = source.name,
+          -subject, -`Disease Group`
+        ) %>%
+        mutate(location = "Internetwork"),
+      cbind(inputData[subjects, intra.network], `Disease Group`) %>%
+        mutate(subject = subjects) %>%
+        gather(
+          key = "pair",
+          value = source.name,
+          -subject, -`Disease Group`
+        ) %>%
+        mutate(location = "Intranetwork")
+    ) %>%
+      group_by(subject, location, `Disease Group`) %>%
+      {
+        if (source.name == "fcDev") {
+          summarise(., fcDev = mean(source.name))
+        } else if (source.name == "dti") {
+          summarise(., dti = mean(source.name))
+        }
+      }
+      
+  }
+  
+  network.fcDev <- combinePairs(
+    fcDev,
+    "fcDev",
+    getInterNetworkPairs(getNetworkRegions(network.name)),
+    getIntraNetworkPairs(getNetworkRegions(network.name)),
+    `Disease Group`
+  )
+  network.dti <- combinePairs(
+    dti,
+    "dti",
+    getInterNetworkPairs(getNetworkRegions(network.name)),
+    getIntraNetworkPairs(getNetworkRegions(network.name)),
+    `Disease Group`
+  )
+  
+  network <- merge(network.fcDev, network.dti)
+  network.copy <- network
+  network.copy$location = "All"
+  network.all <- rbind(network, network.copy)
+  
+  return (network.all)
+  
+}
+
+```
+
+```{r}
+
+setwd('/home/anacadmin/R/projects/scatters')
+dmn <- gatherAllPairsPerNetwork("DMN")
+auditory <- gatherAllPairsPerNetwork("Auditory")
+
+```
+
+```{r}
+
+setwd('/home/anacadmin/R/projects/scatters/')
+for (network in smith.networks) {
+  
+  if (network != "Cerbellum") {
+    print(network)
+    plotIntraNetworkSums(network, "Diffusion")
+    ggsave(paste("Intranetwork",network,".png",sep=""),
+           path = "figures/",
+<<<<<<< HEAD
+           width = 6,
+           height = 5,
+           dpi = 20)
+=======
+           width = 8,
+           height = 6,
+           dpi = 200)
+>>>>>>> e9b41e2b074ab201b510e0c4b5358fc51b7af5d2
+    
+    plotInterNetworkSums(network, "Diffusion")
+    ggsave(paste("Internetwork",network,".png",sep=""),
+           path = "figures/",
+<<<<<<< HEAD
+           width = 6,
+           height = 5,
+           dpi = 20)
+    
+    plotNetworkSums(network, "Diffusion")
+    ggsave(paste(network,".png",sep=""),
+           path = "figures/",
+           width = 6,
+           height = 5,
+           dpi = 20)
+=======
+           width = 10,
+           height = 6,
+           dpi = 200)
+    
+    plotNetworkSums(network, "Diffusion")
+    ggsave(paste("WithinNetworkFC_",network,".png",sep=""),
+           path = "figures/",
+           width = 10,
+           height = 6,
+           dpi = 200)
+    
+    plotNetworkSums(network, "Diffusion", T)
+    ggsave(paste("TotalFC_",network,".png",sep=""),
+           path = "figures/",
+           width = 10,
+           height = 6,
+           dpi = 200)
+>>>>>>> e9b41e2b074ab201b510e0c4b5358fc51b7af5d2
+  }
+  
+}
+
+```
+
+```{bash}
+
+cd /home/anacadmin/R/projects/scatters/figures; ./montage.sh
+
+```
+
+```{r}
+
+setwd('/home/anacadmin/R/projects/scatters/')
+quickFacetPlot(dmn, "DMN", "Structural Disruption", "Change in Functional Connectivity")
+
+```
+
+
+
+

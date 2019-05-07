@@ -6,7 +6,8 @@
 #' Skip if already loaded to save time
 dependencies <- c(
   "dplyr",
-  "stringr"
+  "stringr",
+  "ggplot2"
 )
 
 for (package in dependencies) {
@@ -54,7 +55,8 @@ plotIntraNetworkSums <- function(network.name, disconSource) {
   
   quickScatterPlot(data, network.name,
                    x.axis = "Structural Disruption to Regions Within Network",
-                   y.axis = "Change in Functional Connectivity to Regions Within Network")
+                   y.axis = "Change in Functional Connectivity to Regions Within Network",
+                   title = paste("Within Network Structural Disruption vs Within Network Functional Change for",network.name))
 
 }
 
@@ -75,20 +77,26 @@ plotInterNetworkSums <- function(network.name, disconSource) {
   
   quickScatterPlot(data, network.name,
                    x.axis = "Structural Disruption to Regions Outside of Network",
-                   y.axis = "Change in Functional Connectivity to Regions Outside of Network")
+                   y.axis = "Change in Functional Connectivity to Regions Outside of Network",
+                   title = paste("Total Structural Disruption vs Total Functional Change for",network.name))
   
 }
 
 
-plotNetworkSums <- function(network.name, disconSource) {
+plotNetworkSums <- function(network.name, disconSource, intra.fc = F) {
   
   input.discon <- chooseDisconSource(disconSource)
   subjects <- intersect(rownames(fcDev),
                         rownames(input.discon))
   
-  fc.pairs <- isolateNetworkPairs(network.name, fcDev)
+  if (intra.fc == T) {
+    fc.pairs <- fcDev[subjects, getIntraNetworkPairs(getNetworkRegions(network.name))]
+  } else {
+    fc.pairs <- isolateNetworkPairs(network.name, fcDev)
+    fc.pairs <- fc.pairs[subjects,]
+  }
+  
   discon.pairs <- isolateNetworkPairs(network.name, input.discon)
-  fc.pairs <- fc.pairs[subjects,]
   discon.pairs <- discon.pairs[subjects,]
   disease_group <- disease.groups[subjects,]
   data <- data.frame(fc = rowMeans(fc.pairs),
@@ -97,7 +105,14 @@ plotNetworkSums <- function(network.name, disconSource) {
   
   quickScatterPlot(data, network.name,
                    x.axis = "Structural Disruption to All Pairs with Regions Involved in Network",
-                   y.axis = "Change in Functional Connectivity to All Pairs with Regions Involved in Network")
+                   y.axis = "Change in Functional Connectivity",
+                   {
+                     if (intra.fc == T) {
+                       title = paste("Total Structural Disruption vs Within Network Functional Change for",network.name)
+                     } else {
+                       title = paste("Total Structural Disruption vs Total Functional Change for",network.name)
+                     }
+                   })
   
 }
 
@@ -191,7 +206,7 @@ isolateNetworkPairs <- function(network, inputData) {
 }
 
 
-quickScatterPlot <- function(inputData, network, x.axis, y.axis) {
+quickScatterPlot <- function(inputData, network, x.axis, y.axis, title) {
   model <- lm(
     data = inputData,
     fc ~ discon
@@ -200,7 +215,8 @@ quickScatterPlot <- function(inputData, network, x.axis, y.axis) {
   rsq <- summary(model)$r.square
   
   pval <- str_split(
-    summary(model)[4], " ", simplify = T)[8]
+    summary(model)[4], " ", simplify = T)[8] %>%
+    str_extract(., "-?[0-9.]+")
 
   ggplot(inputData,
          aes(color = as.factor(disease.group),
@@ -211,7 +227,8 @@ quickScatterPlot <- function(inputData, network, x.axis, y.axis) {
                 aes(x = discon,
                     y = fc),
                 inherit.aes = F) + 
-    labs(title = network,
+    scale_x_continuous(limits = c(0, 0.2539352)) + 
+    labs(title = title,
          x = x.axis,
          y = y.axis) +
     geom_label(
