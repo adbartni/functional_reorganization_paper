@@ -2,8 +2,8 @@
 ## Needs to be cleaned soon;
 
 
-#' Load in dependencies
-#' Skip if already loaded to save time
+## Load in dependencies
+## Skip if already loaded to save time
 dependencies <- c(
   "dplyr",
   "stringr",
@@ -39,7 +39,7 @@ getNetworkRegions <- function(network.name) {
 ########################
 ## Plotting functions ##
 ########################
-plotIntraNetworkSums <- function(network.name, disconSource) {
+plotIntraNetworkMeans <- function(network.name, disconSource) {
   
   input.discon <- chooseDisconSource(disconSource)
   subjects <- intersect(rownames(fcDev),
@@ -56,12 +56,14 @@ plotIntraNetworkSums <- function(network.name, disconSource) {
   quickScatterPlot(data, network.name,
                    x.axis = "Structural Disruption to Regions Within Network",
                    y.axis = "Change in Functional Connectivity to Regions Within Network",
-                   title = paste("Within Network Structural Disruption vs Within Network Functional Change for",network.name))
+                   title = 
+                     paste("Within Network Structural Disruption vs Within Network Functional Change for",
+                           network.name))
 
 }
 
 
-plotInterNetworkSums <- function(network.name, disconSource) {
+plotInterNetworkMeans <- function(network.name, disconSource) {
   
   input.discon <- chooseDisconSource(disconSource)
   subjects <- intersect(rownames(fcDev),
@@ -83,11 +85,22 @@ plotInterNetworkSums <- function(network.name, disconSource) {
 }
 
 
-plotNetworkSums <- function(network.name, disconSource, intra.fc = F) {
+plotNetworkMeans <- function(network.name, disconSource, intra.fc = F) {
   
   input.discon <- chooseDisconSource(disconSource)
   subjects <- intersect(rownames(fcDev),
                         rownames(input.discon))
+  isolateNetworkPairs <- function(network, inputData) {
+    networkData <- data.frame(row.names = rownames(inputData))
+    
+    for (region in getNetworkRegions(network)) {
+      networkData <- cbind(
+        inputData[, grep(region, names(inputData))],
+        networkData
+      )
+    }
+    return (networkData)
+  }
   
   if (intra.fc == T) {
     fc.pairs <- fcDev[subjects, getIntraNetworkPairs(getNetworkRegions(network.name))]
@@ -108,9 +121,11 @@ plotNetworkSums <- function(network.name, disconSource, intra.fc = F) {
                    y.axis = "Change in Functional Connectivity",
                    {
                      if (intra.fc == T) {
-                       title = paste("Total Structural Disruption vs Within Network Functional Change for",network.name)
+                       title = 
+                         paste("Total Structural Disruption vs Within Network Functional Change for",network.name)
                      } else {
-                       title = paste("Total Structural Disruption vs Total Functional Change for",network.name)
+                       title = 
+                         paste("Total Structural Disruption vs Total Functional Change for",network.name)
                      }
                    })
   
@@ -193,18 +208,6 @@ getInterNetworkPairs <- function(network) {
   return (network.pairs)
 }
 
-isolateNetworkPairs <- function(network, inputData) {
-  networkData <- data.frame(row.names = rownames(inputData))
-  
-  for (region in getNetworkRegions(network)) {
-    networkData <- cbind(
-      inputData[, grep(region, names(inputData))],
-      networkData
-    )
-  }
-  return (networkData)
-}
-
 
 quickScatterPlot <- function(inputData, network, x.axis, y.axis, title) {
   model <- lm(
@@ -228,6 +231,7 @@ quickScatterPlot <- function(inputData, network, x.axis, y.axis, title) {
                     y = fc),
                 inherit.aes = F) + 
     scale_x_continuous(limits = c(0, 0.2539352)) + 
+    scale_y_continuous(limits = c(0, 2.263598)) +
     labs(title = title,
          x = x.axis,
          y = y.axis) +
