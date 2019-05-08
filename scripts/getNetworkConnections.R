@@ -46,7 +46,7 @@ plotNetworkMeans <- function(network.name, disconSource, location = "total", int
                         rownames(input.discon))
   
   if (location == "intra") {
-    fc.network <- fcDev[subjects, getIntraNetworkPairs(getNetworkRegions(network.name))]
+    fc.network <- fcDev[subjects, getNetworkPairs(getNetworkRegions(network.name), location)]
     discon.network <- input.discon[subjects, getIntraNetworkPairs(getNetworkRegions(network.name))]
     disease_group <- disease.groups[subjects,]
     data <- data.frame(fc = rowMeans(fc.network),
@@ -105,7 +105,8 @@ plotNetworkMeans <- function(network.name, disconSource, location = "total", int
 ######################
 ## Helper functions ##
 ######################
-getIntraNetworkPairs <- function(network) {
+getNetworkPairs <- function(network, location) {
+  location <- tolower(location)
   
   network.pairs <- c()
   for (region in network) {
@@ -113,64 +114,30 @@ getIntraNetworkPairs <- function(network) {
     for (pair in pairs) {
       
       if (str_detect(pair, paste("_",region,sep=""))) {
-        left <- str_split(
+        node <- str_split(
           pair,
           paste("_",region,sep=""),
           simplify = T
         )[1]
-        if (left %in% network) {
-          if (!pair %in% network.pairs) {
-            network.pairs <- append(network.pairs, pair)
-          }
-        }
         
       } else if (str_detect(pair, paste(region,"_",sep=""))) {
-        right <- str_split(
+        node <- str_split(
           pair,
           paste(region,"_",sep=""),
           simplify = T
         )[1]
-        if (right %in% network) {
-          if (!pair %in% network.pairs) {
-            network.pairs <- append(network.pairs, pair)
-          }
-        }
+        
+      } else {
+        next
       }
-    }
-  }
-  return (network.pairs)
-}
-
-
-getInterNetworkPairs <- function(network) {
-  
-  network.pairs <- c()
-  for (region in network) {
-    
-    for (pair in pairs) {
       
-      if (str_detect(pair, paste("_",region,sep=""))) {
-        left <- str_split(
-          pair,
-          paste("_",region,sep=""),
-          simplify = T
-        )[1]
-        if (!left %in% network) {
-          if (!pair %in% network.pairs) {
-            network.pairs <- append(network.pairs, pair)
-          }
-        }
+      if (!pair %in% network.pairs) {
         
-      } else if (str_detect(pair, paste(region,"_",sep=""))) {
-        right <- str_split(
-          pair,
-          paste(region,"_",sep=""),
-          simplify = T
-        )[1]
-        if (!right %in% network) {
-          if (!pair %in% network.pairs) {
-            network.pairs <- append(network.pairs, pair)
-          }
+        if (node %in% network && location == "intra") {
+          network.pairs <- append(network.pairs, pair)
+          
+        } else if (!node %in% network && location == "inter") {
+          network.pairs <- append(network.pairs, pair)
         }
       }
     }
