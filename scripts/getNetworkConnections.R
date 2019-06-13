@@ -39,7 +39,7 @@ getNetworkRegions <- function(network.name) {
 ########################
 ## Plotting functions ##
 ########################
-plotNetworkMeans <- function(network.name, disconSource, location = "total", intra.fc = F) {
+plotNetworkMeans <- function(network.name, disconSource, location = "total", intra.fc = F, legend.position = "none") {
   location <- tolower(location)
   input.discon <- chooseDisconSource(disconSource)
   subjects <- intersect(rownames(fcDev),
@@ -54,7 +54,7 @@ plotNetworkMeans <- function(network.name, disconSource, location = "total", int
                        disease.group = disease_group)
     x.title <- "Structural Disruption to Regions Within Network"
     y.title <- "Change in Functional Connectivity to Regions Within Network"
-    plot.title <- paste("Within Network Structural Disruption vs Within Network Functional Change for",
+    plot.title <- paste("Within Network Structural Disruption vs \nWithin Network Functional Change for",
                         network.name)
     
   } else if (location == "inter") {
@@ -66,7 +66,7 @@ plotNetworkMeans <- function(network.name, disconSource, location = "total", int
                        disease.group = disease_group)
     x.title <- "Structural Disruption to Regions Outside of Network"
     y.title <- "Change in Functional Connectivity to Regions Outside of Network"
-    plot.title <- paste("Total Structural Disruption vs Total Functional Change for",network.name)
+    plot.title <- paste("Outter Structural Disruption vs \nOutter Functional Change for",network.name)
     
   } else if (location == "total") {
     
@@ -87,17 +87,17 @@ plotNetworkMeans <- function(network.name, disconSource, location = "total", int
     y.title = "Change in Functional Connectivity"
     if (intra.fc == T) {
       plot.title = 
-        paste("Total Structural Disruption vs Within Network Functional Change for",network.name)
+        paste("Total Structural Disruption vs \nWithin Network Functional Change for",network.name)
     } else {
       plot.title = 
-        paste("Total Structural Disruption vs Total Functional Change for",network.name)
+        paste("Total Structural Disruption vs \nTotal Functional Change for",network.name)
     }
     
   } else {
     print("Please enter a valid location parameter ('intra,' 'inter,' 'total')")
   }
   
-  quickScatterPlot(data, network.name, x.title, y.title, plot.title)
+  quickScatterPlot(data, network.name, x.title, y.title, plot.title, legend.position = legend.position)
   
 }
 
@@ -146,7 +146,7 @@ getNetworkPairs <- function(network, location) {
 }
 
 
-quickScatterPlot <- function(inputData, network, x.axis, y.axis, title) {
+quickScatterPlot <- function(inputData, network, x.axis, y.axis, title, legend.position) {
   model <- lm(
     data = inputData,
     fc ~ discon
@@ -187,7 +187,11 @@ quickScatterPlot <- function(inputData, network, x.axis, y.axis, title) {
       inherit.aes = F,
       hjust = "inward",
       vjust = "inward"
-    )
+    ) + theme(
+      plot.title = element_text(size = 16, face = "bold"),
+      plot.margin=grid::unit(c(0,0,0,0), "mm"),
+      legend.position = legend.position
+      )
 }
 
 
@@ -201,6 +205,7 @@ chooseDisconSource <- function(disconSource) {
   }
   return (outputData)
 }
+
 
 isolateNetworkPairs <- function(network, inputData) {
   networkData <- data.frame(row.names = rownames(inputData))

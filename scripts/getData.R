@@ -21,7 +21,7 @@ absolute.discon <- read.table(
   )
 
 dti <- read.table(
-  'data/matched_dti.csv',
+  'data/matched_dti_15dir.csv',
   sep = ",",
   encoding = "utf-8",
   header = 1,
@@ -29,7 +29,7 @@ dti <- read.table(
 )
 
 fcDev <- read.table(
-  'data/MS_abdif.csv',
+  'data/fmri_part_connectivity.csv',
   sep = ",", 
   encoding = "utf-8", 
   header = 1, 

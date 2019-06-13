@@ -38,112 +38,38 @@ source('../scripts/getNetworkConnections.R')
 
 ```
 
-```{r}
-
-setwd('/home/anacadmin/R/projects/scatters')
-gatherAllPairsPerNetwork <- function(network.name) {
-  
-  internetworkpairs <- getInterNetworkPairs(getNetworkRegions(network.name))
-  intranetworkpairs <- getIntraNetworkPairs(getNetworkRegions(network.name))
-
-  subjects <- intersect(rownames(fcDev), rownames(dti))
-  `Disease Group` <- disease.groups[subjects,]
-  
-  combinePairs <- function(inputData, source.name, inter.network, intra.network, disease.group) {
-    rbind(
-      cbind(inputData[subjects, inter.network], `Disease Group`) %>%
-        mutate(subject = subjects) %>%
-        gather(
-          key = "pair",
-          value = source.name,
-          -subject, -`Disease Group`
-        ) %>%
-        mutate(location = "Internetwork"),
-      cbind(inputData[subjects, intra.network], `Disease Group`) %>%
-        mutate(subject = subjects) %>%
-        gather(
-          key = "pair",
-          value = source.name,
-          -subject, -`Disease Group`
-        ) %>%
-        mutate(location = "Intranetwork")
-    ) %>%
-      group_by(subject, location, `Disease Group`) %>%
-      {
-        if (source.name == "fcDev") {
-          summarise(., fcDev = mean(source.name))
-        } else if (source.name == "dti") {
-          summarise(., dti = mean(source.name))
-        }
-      }
-      
-  }
-  
-  network.fcDev <- combinePairs(
-    fcDev,
-    "fcDev",
-    getInterNetworkPairs(getNetworkRegions(network.name)),
-    getIntraNetworkPairs(getNetworkRegions(network.name)),
-    `Disease Group`
-  )
-  network.dti <- combinePairs(
-    dti,
-    "dti",
-    getInterNetworkPairs(getNetworkRegions(network.name)),
-    getIntraNetworkPairs(getNetworkRegions(network.name)),
-    `Disease Group`
-  )
-  
-  network <- merge(network.fcDev, network.dti)
-  network.copy <- network
-  network.copy$location = "All"
-  network.all <- rbind(network, network.copy)
-  
-  return (network.all)
-  
-}
-
-```
 
 ```{r}
 
-setwd('/home/anacadmin/R/projects/scatters')
-dmn <- gatherAllPairsPerNetwork("DMN")
-auditory <- gatherAllPairsPerNetwork("Auditory")
-
-```
-
-```{r}
-
-setwd('/home/alex/R/scatters/')
+setwd('/home/anacadmin/R/projects/scatters/')
 for (network in smith.networks) {
   
   if (network != "Cerbellum") {
     print(network)
-    plotIntraNetworkMeans(network, "Diffusion")
+    plotNetworkMeans(network, "Diffusion", "intra")
     ggsave(paste("Intranetwork",network,".png",sep=""),
-           path = "figures/",
+           path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
     
-    plotInterNetworkMeans(network, "Diffusion")
+    plotNetworkMeans(network, "Diffusion", "inter")
     ggsave(paste("Internetwork",network,".png",sep=""),
-           path = "figures/",
+           path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
     
-    plotNetworkMeans(network, "Diffusion")
+    plotNetworkMeans(network, "Diffusion", legend.position = "right")
     ggsave(paste("WithinNetworkFC_",network,".png",sep=""),
-           path = "figures/",
+           path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
     
-    plotNetworkMeans(network, "Diffusion", T)
+    plotNetworkMeans(network, "Diffusion", intra.fc = T)
     ggsave(paste("TotalFC_",network,".png",sep=""),
-           path = "figures/",
+           path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
@@ -155,16 +81,11 @@ for (network in smith.networks) {
 
 ```{bash}
 
-cd /home/anacadmin/R/projects/scatters/figures; ./montage.sh
+cd /home/anacadmin/R/projects/scatters/figures/whole_group; ./montage.sh
 
 ```
 
-```{r}
 
-setwd('/home/anacadmin/R/projects/scatters/')
-quickFacetPlot(dmn, "DMN", "Structural Disruption", "Change in Functional Connectivity")
-
-```
 
 
 

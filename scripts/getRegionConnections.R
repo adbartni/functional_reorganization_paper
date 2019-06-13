@@ -2,7 +2,7 @@
 ## As well as adding a column for R sqaured and Mutual Information
 ## Now the p value for b1 as well
 
-library(tidyr)
+# library(tidyr)
 library(entropy)
 library(ggplot2)
 
