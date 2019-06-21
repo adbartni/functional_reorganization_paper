@@ -41,7 +41,7 @@ pairs <- colnames(fcDev)
 
 
 ## Remove outliers 
-remove <- c("55107", "55831", "71751")
+remove <- c("82576", "84393", "84393")
 discon <- discon[!rownames(discon) %in% remove, ]
 absolute.discon <- absolute.discon[!rownames(discon) %in% remove, ]
 fcDev <- fcDev[!rownames(fcDev) %in% remove, ]

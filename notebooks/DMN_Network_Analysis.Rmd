@@ -1,0 +1,44 @@
+---
+title: "DMN Network Analysis"
+output: html_notebook
+---
+
+I must've broken my plotting functions somewhere along the line, so I'm doing a quick analysis on the DMN here. 
+
+
+```{r}
+
+dmn.subjects <- intersect(
+  rownames(fcDev),
+  rownames(dti)
+)
+dmn.fc.total <- isolateNetworkPairs("DMN", fcDev)[dmn.subjects,]
+dmn.fc.intra <- fcDev[dmn.subjects, getNetworkPairs(getNetworkRegions("DMN"), "intra")]
+dmn.fc.inter <- getNetworkPairs(getNetworkRegions("DMN"), "inter")
+
+dmn.dti.total <- isolateNetworkPairs("DMN", dti)[dmn.subjects,]
+dmn.dti.intra <- getNetworkPairs(getNetworkRegions("DMN"), "intra")
+dmn.dti.inter <- getNetworkPairs(getNetworkRegions("DMN"), "inter")
+
+```
+
+```{r}
+
+total.data <- data.frame(
+  fc = rowMeans(dmn.fc.intra, na.rm = T),
+  discon = rowMeans(dmn.dti.total, na.rm = T),
+  disease.group = disease.groups[dmn.subjects,],
+  subjectID = rownames(dmn.fc.intra)
+)
+
+```
+
+```{r}
+
+model <- lm(data = total.data,
+            fc ~ discon * disease.group)
+summary(model)$r.square
+
+```
+
+

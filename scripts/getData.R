@@ -21,7 +21,7 @@ absolute.discon <- read.table(
   )
 
 dti <- read.table(
-  'data/matched_dti_15dir.csv',
+  'data/matched_dti_15dir_w_missing_subs.csv',
   sep = ",",
   encoding = "utf-8",
   header = 1,
@@ -29,10 +29,10 @@ dti <- read.table(
 )
 
 fcDev <- read.table(
-  'data/fmri_part_connectivity.csv',
+  'data/MS_abdif_w_missing_subs.csv',
   sep = ",", 
   encoding = "utf-8", 
-  header = 1, 
+  header = 1,
   row.names = 1
 )
 fmri.cols <- colnames(fcDev)

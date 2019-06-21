@@ -82,7 +82,7 @@ plotNetworkMeans <- function(network.name, disconSource, location = "total", int
     disease_group <- disease.groups[subjects,]
     data <- data.frame(fc = rowMeans(fc.pairs),
                        discon = rowMeans(discon.pairs),
-                       disease.group = disease_group)
+                       disease.group = disease_group) %>% filter(discon > 0)
     x.title = "Structural Disruption to All Pairs with Regions Involved in Network"
     y.title = "Change in Functional Connectivity"
     if (intra.fc == T) {
@@ -149,14 +149,20 @@ getNetworkPairs <- function(network, location) {
 quickScatterPlot <- function(inputData, network, x.axis, y.axis, title, legend.position) {
   model <- lm(
     data = inputData,
-    fc ~ discon
+    fc ~ discon * disease.group,
+    na.action = na.exclude
   )
   
   rsq <- summary(model)$r.square
   
   pval <- str_split(
-    summary(model)[4], " ", simplify = T)[8] %>%
-    str_extract(., "-?[0-9.]+")
+    summary(model)[4], " ", simplify = T)[34] %>%
+    str_replace_all(., ",", "")
+
+  b1 <- str_split(summary(model)[4], " ", simplify = T)[2] %>%
+    str_remove(",")
+  
+  mi <- mi.plugin( rbind(inputData$fc, inputData$discon) )
 
   ggplot(inputData,
          aes(color = as.factor(disease.group),
@@ -174,16 +180,24 @@ quickScatterPlot <- function(inputData, network, x.axis, y.axis, title, legend.p
          y = y.axis) +
     geom_label(
       aes(x = Inf,
-          y = Inf,
-          label = paste("R2 = ",rsq)),
+          y = -Inf,
+          label = paste("P = ",pval)),
       inherit.aes = F,
       hjust = "inward",
       vjust = "inward"
     ) +
     geom_label(
-      aes(x = Inf,
+      aes(x = -Inf,
+          y = Inf,
+          label = paste("R squared = ",rsq)),
+      inherit.aes = F,
+      hjust = "inward",
+      vjust = "inward"
+    ) +
+    geom_label(
+      aes(x = -Inf,
           y = -Inf,
-          label = paste("P = ",pval)),
+          label = paste("MI = ",mi)),
       inherit.aes = F,
       hjust = "inward",
       vjust = "inward"

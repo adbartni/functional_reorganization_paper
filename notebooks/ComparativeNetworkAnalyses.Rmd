@@ -47,28 +47,28 @@ for (network in smith.networks) {
   if (network != "Cerbellum") {
     print(network)
     plotNetworkMeans(network, "Diffusion", "intra")
-    ggsave(paste("Intranetwork",network,".png",sep=""),
+    ggsave(paste("missing_subs_Intranetwork",network,".png",sep=""),
            path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
     
     plotNetworkMeans(network, "Diffusion", "inter")
-    ggsave(paste("Internetwork",network,".png",sep=""),
-           path = "figures/whole_group",
-           width = 10,
-           height = 6,
-           dpi = 200)
-    
-    plotNetworkMeans(network, "Diffusion", legend.position = "right")
-    ggsave(paste("WithinNetworkFC_",network,".png",sep=""),
+    ggsave(paste("missing_subs_Internetwork",network,".png",sep=""),
            path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
     
     plotNetworkMeans(network, "Diffusion", intra.fc = T)
-    ggsave(paste("TotalFC_",network,".png",sep=""),
+    ggsave(paste("missing_subs_WithinNetworkFC_",network,".png",sep=""),
+           path = "figures/whole_group",
+           width = 10,
+           height = 6,
+           dpi = 200)
+    
+    plotNetworkMeans(network, "Diffusion", legend.position = "right")
+    ggsave(paste("missing_subs_TotalFC_",network,".png",sep=""),
            path = "figures/whole_group",
            width = 10,
            height = 6,
@@ -81,7 +81,7 @@ for (network in smith.networks) {
 
 ```{bash}
 
-cd /home/anacadmin/R/projects/scatters/figures/whole_group; ./montage.sh
+cd /home/anacadmin/R/projects/scatters/figures/whole_group; ./montage.sh 
 
 ```
 

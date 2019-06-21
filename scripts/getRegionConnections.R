@@ -2,7 +2,7 @@
 ## As well as adding a column for R sqaured and Mutual Information
 ## Now the p value for b1 as well
 
-# library(tidyr)
+library(tidyr)
 library(entropy)
 library(ggplot2)
 
@@ -63,15 +63,14 @@ addRsq_MI_cols <- function(data) {
     ) %>%
     mutate(mi = paste("MI = ", mi.plugin(
       rbind(
-        as.factor(discon), as.factor(fc)))
-    )
+        as.factor(discon), as.factor(fc))))
     ) %>%
     mutate(pval = paste("P = ", str_split(
       summary(lm(fc ~ discon))[4],
       " ",
       simplify = T
-    )[8]
-    ))
+    )[8]))
+  
   return (data)
 }
 
