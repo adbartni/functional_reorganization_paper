@@ -4,7 +4,7 @@ library(stringr)
 
 
 discon <- read.table(
-  'data/matched_discon.csv', 
+  'data/structural/matched_discon.csv', 
   sep = ",", 
   encoding = "utf-8", 
   header = 1, 
@@ -13,7 +13,7 @@ discon <- read.table(
 discon.cols <- colnames(discon)
 
 absolute.discon <- read.table(
-  'data/matched_absolute_discon.csv', 
+  'data/structural/matched_absolute_discon.csv', 
   sep = ",", 
   encoding = "utf-8", 
   header = 1, 
@@ -21,7 +21,7 @@ absolute.discon <- read.table(
   )
 
 dti <- read.table(
-  'data/matched_dti_15dir_w_missing_subs.csv',
+  'data/structural/matched_dti_15dir_w_missing_subs.csv',
   sep = ",",
   encoding = "utf-8",
   header = 1,
@@ -29,7 +29,7 @@ dti <- read.table(
 )
 
 fcDev <- read.table(
-  'data/MS_abdif_w_missing_subs.csv',
+  'data/functional/MS_abdif_w_missing_subs.csv',
   sep = ",", 
   encoding = "utf-8", 
   header = 1,
@@ -38,7 +38,7 @@ fcDev <- read.table(
 fmri.cols <- colnames(fcDev)
 
 bidir.fcDev <- read.table(
-  'data/bidirectional_fc_dev.csv',
+  'data/functional/bidirectional_fc_dev.csv',
   sep = ",",
   encoding = "utf-8",
   header = 1,
@@ -46,7 +46,7 @@ bidir.fcDev <- read.table(
 )
 
 HC <- read.table(
-  'data/control_part_cor.csv',
+  'data/functional/control_part_cor.csv',
   sep = ",",
   encoding = "utf-8",
   header = 1,

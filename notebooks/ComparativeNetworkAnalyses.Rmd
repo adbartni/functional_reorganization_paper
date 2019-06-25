@@ -20,7 +20,8 @@ When you click the **Knit** button a document will be generated that includes bo
 dependencies <- c(
   "dplyr",
   "tidyr",
-  "ggplot2"
+  "ggplot2",
+  "entropy"
 )
 
 for (package in dependencies) {
@@ -38,6 +39,15 @@ source('../scripts/getNetworkConnections.R')
 
 ```
 
+```{r}
+
+total_pvals <- read.csv("../data/pvals/total_pvals.csv")
+intra_pvals <- read.csv("../data/pvals/intra_pvals.csv")
+inter_pvals <- read.csv("../data/pvals/inter_pvals.csv")
+within_pvals <- read.csv("../data/pvals/withinnet_totalFC_pvals.csv")
+
+```
+
 
 ```{r}
 
@@ -46,28 +56,28 @@ for (network in smith.networks) {
   
   if (network != "Cerbellum") {
     print(network)
-    plotNetworkMeans(network, "Diffusion", "intra")
+    plotNetworkMeans(network, "Diffusion", "intra", pvals = intra_pvals)
     ggsave(paste("missing_subs_Intranetwork",network,".png",sep=""),
            path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
     
-    plotNetworkMeans(network, "Diffusion", "inter")
+    plotNetworkMeans(network, "Diffusion", "inter", pvals = inter_pvals)
     ggsave(paste("missing_subs_Internetwork",network,".png",sep=""),
            path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
     
-    plotNetworkMeans(network, "Diffusion", intra.fc = T)
+    plotNetworkMeans(network, "Diffusion", intra.fc = T, legend.position = "right", pvals = within_pvals)
     ggsave(paste("missing_subs_WithinNetworkFC_",network,".png",sep=""),
            path = "figures/whole_group",
            width = 10,
            height = 6,
            dpi = 200)
     
-    plotNetworkMeans(network, "Diffusion", legend.position = "right")
+    plotNetworkMeans(network, "Diffusion", pvals = total_pvals)
     ggsave(paste("missing_subs_TotalFC_",network,".png",sep=""),
            path = "figures/whole_group",
            width = 10,
@@ -81,7 +91,7 @@ for (network in smith.networks) {
 
 ```{bash}
 
-cd /home/anacadmin/R/projects/scatters/figures/whole_group; ./montage.sh 
+cd /home/anacadmin/R/projects/scatters/figures/whole_group; ./montage.sh
 
 ```
 

@@ -39,7 +39,7 @@ getNetworkRegions <- function(network.name) {
 ########################
 ## Plotting functions ##
 ########################
-plotNetworkMeans <- function(network.name, disconSource, location = "total", intra.fc = F, legend.position = "none") {
+plotNetworkMeans <- function(network.name, disconSource, location = "total", intra.fc = F, legend.position = "none", pvals) {
   location <- tolower(location)
   input.discon <- chooseDisconSource(disconSource)
   subjects <- intersect(rownames(fcDev),
@@ -97,7 +97,7 @@ plotNetworkMeans <- function(network.name, disconSource, location = "total", int
     print("Please enter a valid location parameter ('intra,' 'inter,' 'total')")
   }
   
-  quickScatterPlot(data, network.name, x.title, y.title, plot.title, legend.position = legend.position)
+  quickScatterPlot(data, network.name, x.title, y.title, plot.title, legend.position = legend.position, pvals)
   
 }
 
@@ -146,7 +146,7 @@ getNetworkPairs <- function(network, location) {
 }
 
 
-quickScatterPlot <- function(inputData, network, x.axis, y.axis, title, legend.position) {
+quickScatterPlot <- function(inputData, network.name, x.axis, y.axis, title, legend.position, pvals) {
   model <- lm(
     data = inputData,
     fc ~ discon * disease.group,
@@ -155,9 +155,8 @@ quickScatterPlot <- function(inputData, network, x.axis, y.axis, title, legend.p
   
   rsq <- summary(model)$r.square
   
-  pval <- str_split(
-    summary(model)[4], " ", simplify = T)[34] %>%
-    str_replace_all(., ",", "")
+  pval <- (pvals %>% filter(network == network.name))$pval
+  print(pval)
 
   b1 <- str_split(summary(model)[4], " ", simplify = T)[2] %>%
     str_remove(",")
