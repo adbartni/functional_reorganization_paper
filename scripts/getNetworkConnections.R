@@ -149,7 +149,7 @@ getNetworkPairs <- function(network, location) {
 quickScatterPlot <- function(inputData, network.name, x.axis, y.axis, title, legend.position, pvals) {
   model <- lm(
     data = inputData,
-    fc ~ discon * disease.group,
+    fc ~ discon,
     na.action = na.exclude
   )
   
